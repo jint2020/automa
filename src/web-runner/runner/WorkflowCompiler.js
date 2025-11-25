@@ -100,8 +100,8 @@ class WorkflowCompiler {
       };
     }
 
-    // Step 4: Compile each action
-    const actions = this._compileActions(opts);
+    // Step 4: Compile each action (pass connectionGraph to avoid rebuilding)
+    const actions = this._compileActions(opts, connectionGraph);
 
     // Step 5: Optionally optimize order
     const orderedActions = opts.optimizeOrder
@@ -238,12 +238,12 @@ class WorkflowCompiler {
    * Compile all actions
    * @private
    */
-  _compileActions(options) {
+  _compileActions(options, connectionGraph) {
     const nodes = this.workflow.drawflow?.nodes || [];
     const compiledActions = [];
 
     nodes.forEach((node) => {
-      const compiledAction = this._compileAction(node, options);
+      const compiledAction = this._compileAction(node, options, connectionGraph);
       if (compiledAction) {
         compiledActions.push(compiledAction);
       }
@@ -256,7 +256,7 @@ class WorkflowCompiler {
    * Compile a single action
    * @private
    */
-  _compileAction(node, options) {
+  _compileAction(node, options, connectionGraph) {
     const actionType = node.type || node.label;
     const actionDef = getAction(actionType);
 
@@ -267,9 +267,8 @@ class WorkflowCompiler {
       );
     }
 
-    // Get outputs from connection graph
-    const graph = this._buildConnectionGraph();
-    const outputs = graph[node.id]?.outputs || {};
+    // Get outputs from connection graph (passed in, not rebuilt)
+    const outputs = connectionGraph[node.id]?.outputs || {};
 
     // Resolve parameters
     let params = { ...node.data };

@@ -118,7 +118,7 @@ class WebAdapter extends BasePlatformAdapter {
    * @private
    */
   _generateInstructionId() {
-    return `instr-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return `instr-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
   }
 
   /**
