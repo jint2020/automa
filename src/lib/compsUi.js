@@ -2,17 +2,18 @@ import VTooltip from '../directives/VTooltip';
 import VAutofocus from '../directives/VAutofocus';
 import VClosePopover from '../directives/VClosePopover';
 
-const uiComponents = require.context('../components/ui', false, /\.vue$/);
-const transitionComponents = require.context(
-  '../components/transitions',
-  false,
-  /\.vue$/
-);
+// Vite's import.meta.glob for auto-importing components
+const uiComponents = import.meta.glob('../components/ui/*.vue', { eager: true });
+const transitionComponents = import.meta.glob('../components/transitions/*.vue', {
+  eager: true,
+});
 
 function componentsExtractor(app, components) {
-  components.keys().forEach((key) => {
-    const componentName = key.replace(/(.\/)|\.vue$/g, '');
-    const component = components(key)?.default ?? {};
+  Object.keys(components).forEach((path) => {
+    // Extract component name from path
+    // Path format: ../components/ui/ComponentName.vue
+    const componentName = path.split('/').pop().replace(/\.vue$/, '');
+    const component = components[path]?.default ?? {};
 
     app.component(componentName, component);
   });
@@ -26,3 +27,4 @@ export default function (app) {
   componentsExtractor(app, uiComponents);
   componentsExtractor(app, transitionComponents);
 }
+

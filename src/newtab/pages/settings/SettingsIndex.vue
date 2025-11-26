@@ -14,7 +14,7 @@
           class="rounded-lg p-0.5"
         >
           <img
-            :src="require(`@/assets/images/theme-${item.id}.png`)"
+            :src="`/src/assets/images/theme-${item.id}.png`"
             width="140"
             class="rounded-lg"
           />

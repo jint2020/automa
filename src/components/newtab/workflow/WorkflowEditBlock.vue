@@ -40,15 +40,14 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 
-const editComponents = require.context(
-  './edit',
-  false,
-  /^(?:.*\/)?Edit[^/]*\.vue$/
-);
+// Vite's import.meta.glob for auto-importing edit components
+const editComponents = import.meta.glob('./edit/Edit*.vue', { eager: true });
 /* eslint-disable-next-line */
-const components = editComponents.keys().reduce((acc, key) => {
-  const name = key.replace(/(.\/)|\.vue$/g, '');
-  const componentObj = editComponents(key)?.default ?? {};
+const components = Object.keys(editComponents).reduce((acc, path) => {
+  // Extract component name from path
+  // Path format: ./edit/EditClick.vue
+  const name = path.split('/').pop().replace(/\.vue$/, '');
+  const componentObj = editComponents[path]?.default ?? {};
 
   acc[name] = componentObj;
 

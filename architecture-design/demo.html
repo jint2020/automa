@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automa Web 架构演示 - Mock Runner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .workflow-preview {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .workflow-preview h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .workflow-preview ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .workflow-preview li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .workflow-preview li:last-child {
+            border-bottom: none;
+        }
+
+        .workflow-preview li::before {
+            content: '▶';
+            color: #667eea;
+            margin-right: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .console-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            max-height: 500px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .console-output::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .console-output::-webkit-scrollbar-track {
+            background: #2d2d2d;
+        }
+
+        .console-output::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        .status-bar {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-idle {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+
+        .status-running {
+            background: #667eea;
+            color: white;
+        }
+
+        .status-completed {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-failed {
+            background: #dc3545;
+            color: white;
+        }
+
+        .json-viewer {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .json-viewer pre {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            color: #1976D2;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Automa Web 架构演示</h1>
+            <p>基于新架构的 Mock Runner 实时演示 - 体验完全解耦的工作流执行</p>
+        </div>
+
+        <div class="content">
+            <!-- 信息说明 -->
+            <div class="info-box">
+                <p><strong>📖 这是什么？</strong></p>
+                <p>这是 Automa Web 重构后的 Mock Runner 演示。点击下方按钮，在控制台查看彩色的执行日志！</p>
+                <p><strong>💡 提示：</strong>打开浏览器开发者工具的 Console 标签页，查看详细的执行过程。</p>
+            </div>
+
+            <!-- 工作流预览 -->
+            <div class="section">
+                <h2>📋 示例工作流：用户登录流程</h2>
+                <div class="workflow-preview">
+                    <h3>工作流步骤：</h3>
+                    <ul>
+                        <li><strong>步骤 1:</strong> 导航到登录页面 (https://example.com/login)</li>
+                        <li><strong>步骤 2:</strong> 输入用户名 (demo@example.com)</li>
+                        <li><strong>步骤 3:</strong> 输入密码 (SecurePass123!)</li>
+                        <li><strong>步骤 4:</strong> 点击登录按钮</li>
+                        <li><strong>步骤 5:</strong> 等待跳转到仪表盘</li>
+                        <li><strong>步骤 6:</strong> 提取用户信息（姓名和邮箱）</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 状态栏 -->
+            <div class="section">
+                <h2>📊 执行状态</h2>
+                <div class="status-bar">
+                    <div>
+                        <strong>当前状态：</strong>
+                        <span id="status" class="status-badge status-idle">空闲</span>
+                    </div>
+                    <div id="progress">
+                        <strong>进度：</strong> <span id="step-progress">0/6</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 控制按钮 -->
+            <div class="section">
+                <h2>🎮 控制面板</h2>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="runWorkflow()">▶️ 运行工作流</button>
+                    <button class="btn btn-secondary" onclick="pauseWorkflow()" id="pauseBtn" disabled>⏸️ 暂停</button>
+                    <button class="btn btn-success" onclick="resumeWorkflow()" id="resumeBtn" disabled>▶️ 恢复</button>
+                    <button class="btn btn-danger" onclick="stopWorkflow()" id="stopBtn" disabled>⏹️ 停止</button>
+                    <button class="btn btn-secondary" onclick="clearConsole()">🗑️ 清空控制台</button>
+                    <button class="btn btn-secondary" onclick="viewJSON()">📄 查看 JSON</button>
+                </div>
+            </div>
+
+            <!-- 浏览器控制台输出提示 -->
+            <div class="section">
+                <h2>🖥️ 控制台输出预览</h2>
+                <div class="console-output" id="consolePreview">
+等待执行...
+
+💡 提示：
+1. 点击"运行工作流"按钮开始执行
+2. 打开浏览器开发者工具 (F12) 查看完整的彩色日志输出
+3. 在这里你会看到简化版的日志，完整版在浏览器 Console 中
+
+准备好了吗？点击上方的"▶️ 运行工作流"按钮！
+                </div>
+            </div>
+
+            <!-- JSON 查看器 -->
+            <div class="section" id="jsonSection" style="display: none;">
+                <h2>📄 WorkflowExecutionPlan JSON</h2>
+                <div class="json-viewer">
+                    <pre id="jsonContent"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // 简化版的 Mock Runner（适配浏览器环境）
+        let currentRunner = null;
+        let executionResult = null;
+        let currentStatus = 'idle';
+
+        // 示例工作流定义
+        const sampleWorkflow = {
+            id: 'wf-demo-001',
+            name: 'Login and Extract User Info',
+            version: '1.0.0',
+            createdAt: Date.now(),
+            config: {
+                mode: 'sequential',
+                onError: 'stop',
+                stepDelay: 1000,
+                timeout: 30000,
+                saveLog: true
+            },
+            steps: [
+                {
+                    id: 'step-1',
+                    name: 'Navigate to Login Page',
+                    type: 'navigate',
+                    action: {
+                        type: 'navigate',
+                        payload: {
+                            url: 'https://example.com/login',
+                            waitUntil: 'load'
+                        }
+                    },
+                    next: { default: 'step-2' },
+                    config: {}
+                },
+                {
+                    id: 'step-2',
+                    name: 'Type Username',
+                    type: 'type',
+                    action: {
+                        type: 'type',
+                        payload: {
+                            selector: { type: 'css', value: '#username' },
+                            text: '{{username}}',
+                            clearBefore: true
+                        }
+                    },
+                    next: { default: 'step-3' },
+                    config: {}
+                },
+                {
+                    id: 'step-3',
+                    name: 'Type Password',
+                    type: 'type',
+                    action: {
+                        type: 'type',
+                        payload: {
+                            selector: { type: 'css', value: '#password' },
+                            text: '{{password}}',
+                            clearBefore: true
+                        }
+                    },
+                    next: { default: 'step-4' },
+                    config: {}
+                },
+                {
+                    id: 'step-4',
+                    name: 'Click Login Button',
+                    type: 'click',
+                    action: {
+                        type: 'click',
+                        payload: {
+                            selector: { type: 'css', value: '#login-button' },
+                            clickType: 'left',
+                            humanLike: true
+                        }
+                    },
+                    next: { default: 'step-5' },
+                    config: {}
+                },
+                {
+                    id: 'step-5',
+                    name: 'Wait for Dashboard',
+                    type: 'wait',
+                    action: {
+                        type: 'wait',
+                        payload: {
+                            type: 'element',
+                            selector: { type: 'css', value: '.dashboard' }
+                        }
+                    },
+                    next: { default: 'step-6' },
+                    config: {}
+                },
+                {
+                    id: 'step-6',
+                    name: 'Extract User Info',
+                    type: 'extract',
+                    action: {
+                        type: 'extract',
+                        payload: {
+                            targets: [
+                                {
+                                    key: 'userName',
+                                    selector: { type: 'css', value: '.user-name' },
+                                    extract: 'text'
+                                },
+                                {
+                                    key: 'userEmail',
+                                    selector: { type: 'css', value: '.user-email' },
+                                    extract: 'text'
+                                }
+                            ],
+                            multiple: false
+                        },
+                        output: {
+                            variable: 'userInfo'
+                        }
+                    },
+                    next: { default: null },
+                    config: {}
+                }
+            ],
+            context: {
+                variables: {
+                    username: 'demo@example.com',
+                    password: 'SecurePass123!'
+                },
+                table: [],
+                loopData: {},
+                globalData: {}
+            },
+            metadata: {
+                sourceWorkflowId: 'wf-demo-001',
+                compiler: 'AutomaWebCompiler',
+                compilerVersion: '2.0.0'
+            }
+        };
+
+        // 简化的 Mock Runner 类
+        class SimpleMockRunner {
+            constructor(plan) {
+                this.plan = plan;
+                this.isPaused = false;
+                this.shouldStop = false;
+                this.currentStep = 0;
+            }
+
+            async execute() {
+                console.clear();
+                console.log('%c🚀 Mock Runner Started', 'font-size: 20px; font-weight: bold; color: #4ecdc4;');
+                console.log('━'.repeat(80));
+
+                updateStatus('running');
+                updateConsolePreview('🚀 开始执行工作流...\n');
+
+                const startTime = Date.now();
+                let successCount = 0;
+                let failedCount = 0;
+
+                for (let i = 0; i < this.plan.steps.length; i++) {
+                    if (this.shouldStop) {
+                        updateConsolePreview('⏹️ 执行已停止\n');
+                        break;
+                    }
+
+                    this.currentStep = i;
+                    const step = this.plan.steps[i];
+
+                    await this.waitIfPaused();
+
+                    updateProgress(i + 1, this.plan.steps.length);
+                    const result = await this.executeStep(step, i + 1);
+
+                    if (result.success) {
+                        successCount++;
+                    } else {
+                        failedCount++;
+                    }
+
+                    if (this.plan.config.stepDelay && i < this.plan.steps.length - 1) {
+                        await this.sleep(this.plan.config.stepDelay);
+                    }
+                }
+
+                const result = {
+                    success: failedCount === 0 && !this.shouldStop,
+                    startedAt: startTime,
+                    finishedAt: Date.now(),
+                    totalSteps: this.plan.steps.length,
+                    successSteps: successCount,
+                    failedSteps: failedCount
+                };
+
+                this.printSummary(result);
+                updateStatus(result.success ? 'completed' : 'failed');
+
+                return result;
+            }
+
+            async executeStep(step, index) {
+                console.log('\n' + '─'.repeat(80));
+                console.log(`%c📍 Step ${index}/${this.plan.steps.length}: ${step.name}`,
+                    'font-size: 14px; font-weight: bold; color: #ffd93d;');
+                console.log('─'.repeat(80));
+
+                updateConsolePreview(`\n📍 步骤 ${index}: ${step.name}\n`);
+
+                const actionType = step.action.type;
+                let duration = 0;
+
+                switch (actionType) {
+                    case 'navigate':
+                        console.log('🌐 Navigate to:', step.action.payload.url);
+                        updateConsolePreview(`  🌐 导航到: ${step.action.payload.url}\n`);
+                        duration = 800;
+                        break;
+                    case 'type':
+                        const text = step.action.payload.text.replace(/\{\{(\w+)\}\}/g,
+                            (_, key) => this.plan.context.variables[key] || '');
+                        console.log('⌨️  Type:', text);
+                        updateConsolePreview(`  ⌨️  输入: ${text}\n`);
+                        duration = text.length * 50;
+                        break;
+                    case 'click':
+                        console.log('🖱️  Click:', step.action.payload.selector.value);
+                        updateConsolePreview(`  🖱️  点击: ${step.action.payload.selector.value}\n`);
+                        duration = 300;
+                        break;
+                    case 'wait':
+                        console.log('⏳ Wait for:', step.action.payload.type);
+                        updateConsolePreview(`  ⏳ 等待...\n`);
+                        duration = 1000;
+                        break;
+                    case 'extract':
+                        console.log('📊 Extract data');
+                        updateConsolePreview(`  📊 提取数据...\n`);
+                        duration = 500;
+                        break;
+                }
+
+                await this.sleep(duration);
+                console.log('✅ Completed');
+                updateConsolePreview(`  ✅ 完成\n`);
+
+                return { success: true, duration };
+            }
+
+            async waitIfPaused() {
+                while (this.isPaused) {
+                    await this.sleep(100);
+                }
+            }
+
+            sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            printSummary(result) {
+                console.log('\n' + '━'.repeat(80));
+                console.log(`%c${result.success ? '✅' : '❌'} Execution ${result.success ? 'Completed' : 'Failed'}`,
+                    `font-size: 18px; font-weight: bold; color: ${result.success ? '#51cf66' : '#ff6b6b'};`);
+                console.log('━'.repeat(80));
+                console.table({
+                    'Status': result.success ? 'SUCCESS' : 'FAILED',
+                    'Total Steps': result.totalSteps,
+                    'Success Steps': result.successSteps,
+                    'Failed Steps': result.failedSteps,
+                    'Duration': `${result.finishedAt - result.startedAt}ms`
+                });
+
+                updateConsolePreview(`\n${result.success ? '✅' : '❌'} 执行${result.success ? '成功' : '失败'}\n`);
+                updateConsolePreview(`总步骤: ${result.totalSteps}, 成功: ${result.successSteps}, 失败: ${result.failedSteps}\n`);
+                updateConsolePreview(`耗时: ${result.finishedAt - result.startedAt}ms\n`);
+            }
+
+            pause() {
+                this.isPaused = true;
+                console.log('⏸️  Execution paused');
+                updateConsolePreview('\n⏸️  执行已暂停\n');
+            }
+
+            resume() {
+                this.isPaused = false;
+                console.log('▶️  Execution resumed');
+                updateConsolePreview('\n▶️  执行已恢复\n');
+            }
+
+            stop() {
+                this.shouldStop = true;
+                console.log('⏹️  Execution stopped');
+                updateConsolePreview('\n⏹️  执行已停止\n');
+            }
+        }
+
+        // UI 更新函数
+        function updateStatus(status) {
+            currentStatus = status;
+            const statusEl = document.getElementById('status');
+            const statusText = {
+                'idle': '空闲',
+                'running': '运行中',
+                'completed': '已完成',
+                'failed': '失败'
+            };
+
+            statusEl.textContent = statusText[status] || status;
+            statusEl.className = `status-badge status-${status}`;
+
+            // 更新按钮状态
+            const isRunning = status === 'running';
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('resumeBtn').disabled = !isRunning;
+            document.getElementById('stopBtn').disabled = !isRunning;
+        }
+
+        function updateProgress(current, total) {
+            document.getElementById('step-progress').textContent = `${current}/${total}`;
+        }
+
+        function updateConsolePreview(text) {
+            const preview = document.getElementById('consolePreview');
+            preview.textContent += text;
+            preview.scrollTop = preview.scrollHeight;
+        }
+
+        // 全局函数
+        window.runWorkflow = async function() {
+            if (currentRunner) {
+                alert('工作流正在运行中...');
+                return;
+            }
+
+            console.log('%c💡 完整的彩色日志将在浏览器 Console 中显示',
+                'font-size: 14px; color: #2196F3; font-weight: bold;');
+
+            currentRunner = new SimpleMockRunner(sampleWorkflow);
+            executionResult = await currentRunner.execute();
+            currentRunner = null;
+
+            updateProgress(0, sampleWorkflow.steps.length);
+        };
+
+        window.pauseWorkflow = function() {
+            if (currentRunner) {
+                currentRunner.pause();
+                updateStatus('paused');
+            }
+        };
+
+        window.resumeWorkflow = function() {
+            if (currentRunner) {
+                currentRunner.resume();
+                updateStatus('running');
+            }
+        };
+
+        window.stopWorkflow = function() {
+            if (currentRunner) {
+                currentRunner.stop();
+            }
+        };
+
+        window.clearConsole = function() {
+            console.clear();
+            document.getElementById('consolePreview').textContent = '控制台已清空。\n\n准备开始新的执行...\n';
+        };
+
+        window.viewJSON = function() {
+            const section = document.getElementById('jsonSection');
+            const content = document.getElementById('jsonContent');
+
+            if (section.style.display === 'none') {
+                content.textContent = JSON.stringify(sampleWorkflow, null, 2);
+                section.style.display = 'block';
+                section.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                section.style.display = 'none';
+            }
+        };
+
+        // 页面加载完成提示
+        console.log('%c🎉 Automa Web 架构演示已加载', 'font-size: 16px; color: #667eea; font-weight: bold;');
+        console.log('%c点击页面中的"运行工作流"按钮开始演示', 'font-size: 14px; color: #764ba2;');
+    </script>
+</body>
+</html>

@@ -49,32 +49,32 @@ export const tasks = {
       },
     },
   },
-  'ai-workflow': {
-    name: 'AI Workflow',
-    description: 'A workflow that is created by AI-Power',
-    icon: 'https://winrobot-pub-a-1302949341.cos.ap-shanghai.myqcloud.com/image/20250717194249/10e0c06a7b243d15ac9a9385b07ce4e2.svg',
-    tag: 'AI',
-    component: 'BlockBasic',
-    editComponent: 'EditAiWorkflow',
-    category: 'general',
-    inputs: 1,
-    outputs: 1,
-    allowedInputs: true,
-    maxConnection: 1,
-    data: {
-      disableBlock: false,
-      flowUuid: '',
-      flowLabel: '',
-      description: '',
-      inputs: [],
-      outputs: [],
-      assignVariable: false,
-      variableName: '',
+  // 'ai-workflow': {
+  //   name: 'AI Workflow',
+  //   description: 'A workflow that is created by AI-Power',
+  //   icon: 'https://winrobot-pub-a-1302949341.cos.ap-shanghai.myqcloud.com/image/20250717194249/10e0c06a7b243d15ac9a9385b07ce4e2.svg',
+  //   tag: 'AI',
+  //   component: 'BlockBasic',
+  //   editComponent: 'EditAiWorkflow',
+  //   category: 'general',
+  //   inputs: 1,
+  //   outputs: 1,
+  //   allowedInputs: true,
+  //   maxConnection: 1,
+  //   data: {
+  //     disableBlock: false,
+  //     flowUuid: '',
+  //     flowLabel: '',
+  //     description: '',
+  //     inputs: [],
+  //     outputs: [],
+  //     assignVariable: false,
+  //     variableName: '',
 
-      saveData: false,
-      dataColumn: '',
-    },
-  },
+  //     saveData: false,
+  //     dataColumn: '',
+  //   },
+  // },
   'execute-workflow': {
     name: 'Execute workflow',
     description: '',
@@ -1541,6 +1541,11 @@ export const categories = {
     border: 'border-cyan-200 dark:border-cyan-300',
     color: 'bg-cyan-200 dark:bg-cyan-300 fill-cyan-200 dark:fill-cyan-300',
   },
+  integration:{
+    name: 'Integrations',
+    border: 'border-pink-200 dark:border-pink-300',
+    color: 'bg-pink-200 dark:bg-pink-300 fill-pink-200 dark:fill-pink-300',
+  },
 };
 
 export const tagColors = {
@@ -1605,15 +1610,7 @@ export const contentTypes = [
 
 export const supportLocales = [
   { id: 'en', name: 'English' },
-  { id: 'fr', name: 'Français' },
-  { id: 'it', name: 'Italiano' },
-  { id: 'uk', name: 'Українська' },
-  { id: 'vi', name: 'Tiếng Việt' },
   { id: 'zh', name: '简体中文' },
-  { id: 'zh-TW', name: '繁體中文' },
-  { id: 'tr', name: 'Türkçe' },
-  { id: 'es', name: 'Spanish' },
-  { id: 'pt-BR', name: 'Portuguese' },
 ];
 
 export const communities = [

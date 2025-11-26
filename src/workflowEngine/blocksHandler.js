@@ -1,11 +1,15 @@
 import { toCamelCase } from '@/utils/helper';
 import customHandlers from '@business/blocks/backgroundHandler';
 
-const blocksHandler = require.context('./blocksHandler', false, /\.js$/);
-const handlers = blocksHandler.keys().reduce((acc, key) => {
-  const name = key.replace(/^\.\/handler|\.js/g, '');
+// Vite's import.meta.glob for auto-importing block handlers
+const blocksHandler = import.meta.glob('./blocksHandler/*.js', { eager: true });
+const handlers = Object.keys(blocksHandler).reduce((acc, path) => {
+  // Extract handler name from path
+  // Path format: ./blocksHandler/handlerClick.js
+  const fileName = path.split('/').pop();
+  const name = fileName.replace(/^handler|\.js$/g, '');
 
-  acc[toCamelCase(name)] = blocksHandler(key).default;
+  acc[toCamelCase(name)] = blocksHandler[path].default;
 
   return acc;
 }, {});

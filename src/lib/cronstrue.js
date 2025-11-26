@@ -1,12 +1,9 @@
 import cronstrue from 'cronstrue';
-import 'cronstrue/locales/fr';
-import 'cronstrue/locales/zh_TW';
 import 'cronstrue/locales/zh_CN';
 
-const supportedLocales = ['en', 'zh', 'zh-tw', 'fr'];
+const supportedLocales = ['en', 'zh'];
 const altLocaleId = {
   zh: 'zh_CN',
-  'zh-TW': 'zh_TW',
 };
 
 export function readableCron(expression) {

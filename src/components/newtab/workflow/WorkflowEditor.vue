@@ -140,10 +140,13 @@ const fallbackBlocks = {
 };
 
 const isMac = navigator.appVersion.indexOf('Mac') !== -1;
-const blockComponents = require.context('@/components/block', false, /\.vue$/);
-const nodeTypes = blockComponents.keys().reduce((acc, key) => {
-  const name = key.replace(/(.\/)|\.vue$/g, '');
-  const component = blockComponents(key).default;
+// Vite's import.meta.glob for auto-importing block components
+const blockComponents = import.meta.glob('@/components/block/*.vue', { eager: true });
+const nodeTypes = Object.keys(blockComponents).reduce((acc, path) => {
+  // Extract component name from path
+  // Path format: @/components/block/BlockClick.vue or /src/components/block/BlockClick.vue
+  const name = path.split('/').pop().replace(/\.vue$/, '');
+  const component = blockComponents[path].default;
 
   if (fallbackBlocks[name]) {
     fallbackBlocks[name].forEach((fallbackBlock) => {
