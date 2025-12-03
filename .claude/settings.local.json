@@ -4,7 +4,12 @@
       "Bash(cat:*)",
       "Bash(find:*)",
       "Bash(pnpm install:*)",
-      "Bash(pnpm dev:web)"
+      "Bash(pnpm dev:web)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev)",
+      "Bash(npm run build:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

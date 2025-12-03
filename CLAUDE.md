@@ -24,14 +24,18 @@ This file is git-ignored and required for the extension to build.
 # Install dependencies
 pnpm install
 
-# Development (hot-reload)
-pnpm dev              # Chrome
-pnpm dev:firefox      # Firefox
+# Extension Development (hot-reload)
+pnpm dev              # Chrome extension
+pnpm dev:firefox      # Firefox extension
+
+# Web Mode Development (standalone web app)
+pnpm dev:web          # Vite dev server on localhost:3000
 
 # Production builds
-pnpm build            # Chrome
-pnpm build:firefox    # Firefox
-pnpm build:zip        # Create zip from build folder
+pnpm build            # Chrome extension
+pnpm build:firefox    # Firefox extension
+pnpm build:web        # Web application (dist-web/)
+pnpm build:zip        # Create zip from extension build folder
 
 # Code quality
 pnpm lint             # ESLint
@@ -77,7 +81,7 @@ message.on('workflow:execute', (data) => { ... });
 - `src/workflowEngine/WorkflowEngine.js` - Main orchestrator
 - `src/workflowEngine/WorkflowWorker.js` - Executes individual blocks
 - `src/workflowEngine/WorkflowState.js` - Manages execution states
-- `src/workflowEngine/blocksHandler/` - 56 block handlers (handler*.js)
+- `src/workflowEngine/blocksHandler/` - 56+ block handlers (handler*.js)
 
 **Execution Flow**:
 1. Workflow stored as node/edge graph (vue-flow format)
@@ -97,7 +101,10 @@ export default function (blockData, { handleSelector }) {
 }
 ```
 
-**Adding New Blocks**: Create `handlerXxx.js` in `blocksHandler/` - automatically discovered via webpack context.
+**Adding New Blocks**:
+- Create `handlerXxx.js` in `blocksHandler/` - automatically discovered via `import.meta.glob`
+- In web mode (Vite), handlers are loaded via `import.meta.glob('./blocksHandler/*.js', { eager: true })`
+- In extension mode (Webpack), handlers use `require.context`
 
 ### State Management
 
@@ -107,7 +114,7 @@ export default function (blockData, { handleSelector }) {
 - `user.js` - Authentication, teams, cloud sync
 
 **Additional Storage**:
-- `browser.storage.local` - Persisted workflows/settings
+- `browser.storage.local` - Persisted workflows/settings (maps to localStorage in web mode)
 - IndexedDB (Dexie) - Large data structures (`src/db/`)
 - In-memory Maps - Active execution states
 
@@ -115,7 +122,10 @@ export default function (blockData, { handleSelector }) {
 
 1. **Singleton Services**: `WorkflowManager`, `BackgroundWorkflowUtils`, `BrowserAPIService` - ensure single instances per extension lifecycle
 
-2. **Dynamic Handler Registry**: Block handlers auto-loaded via webpack `require.context`
+2. **Dynamic Module Loading**:
+   - Extension mode: `require.context` (Webpack)
+   - Web mode: `import.meta.glob` (Vite)
+   - Auto-discovery of blocks, handlers, and UI components
 
 3. **Reference Data Threading**: `WorkflowEngine.referenceData` object shared across all blocks:
    ```js
@@ -132,7 +142,9 @@ export default function (blockData, { handleSelector }) {
 
 5. **Element Selection Abstraction**: Unified querying (`src/content/handleSelector.js`) supports CSS, XPath, ShadowDOM piercing
 
-6. **Browser API Abstraction**: `src/service/browser-api/BrowserAPIService.js` masks Chrome/Firefox differences
+6. **Browser API Abstraction**:
+   - Extension mode: `src/service/browser-api/BrowserAPIService.js` masks Chrome/Firefox differences
+   - Web mode: `src/utils/shim-chrome.ts` provides mock APIs
 
 7. **Event-Driven State**: `WorkflowState` emits events (`update`, `stop`, `resume`) for state changes
 
@@ -146,14 +158,23 @@ src/
 │   ├── pages/          # Router pages
 │   └── components/     # Reusable components
 ├── workflowEngine/     # Execution engine and block handlers
-│   ├── blocksHandler/  # 56 block type handlers (handler*.js)
+│   ├── blocksHandler/  # 56+ block type handlers (handler*.js)
 │   └── templating/     # Variable substitution engine
 ├── stores/             # Pinia state management
 ├── composable/         # Vue 3 composables (reusable logic)
 ├── service/            # Browser API abstraction
 ├── db/                 # IndexedDB (Dexie) definitions
 ├── utils/              # Shared utilities, message passing
+│   └── shim-chrome.ts  # Chrome API mock layer (web mode)
 └── assets/             # Icons, styles, locales
+
+business/dev/           # Custom business blocks
+├── blocks/
+│   ├── index.js                    # Custom block definitions
+│   ├── backgroundHandler/          # Background execution handlers
+│   ├── contentHandler/             # Content script handlers
+│   └── editComponents/             # Block editing UI components
+└── parameters/         # Custom parameter types
 ```
 
 ## Technology Stack
@@ -161,35 +182,69 @@ src/
 - **Framework**: Vue 3, Vue Router, Pinia
 - **Workflow Editor**: vue-flow (node-based graph editor)
 - **Code Editor**: CodeMirror v6
-- **Build**: Webpack 5, Babel, PostCSS, Tailwind CSS
+- **Build**:
+  - Extension: Webpack 5, Babel
+  - Web: Vite 5
+- **Styling**: PostCSS, Tailwind CSS
 - **Browser APIs**: webextension-polyfill (Chrome/Firefox abstraction)
 - **Storage**: browser.storage.local, IndexedDB (Dexie)
+- **i18n**: vue-i18n (supports en, zh locales)
 
 ## Important Development Notes
 
-- **Webpack Entry Points**: `background`, `contentScript`, `newtab`, `popup` (see `webpack.config.js`)
+### Extension Mode
+- **Entry Points**: `background`, `contentScript`, `newtab`, `popup` (see `webpack.config.js`)
 - **Manifest**: Chrome uses `manifest.chrome.json` (MV3), Firefox uses `manifest.firefox.json`
 - **Permissions**: Requires `<all_urls>`, `tabs`, `debugger`, `scripting`, `storage`, `webNavigation`
 - **Browser Compatibility**: Content scripts run at `document_start` for early injection
-- **Performance**: WorkflowWorker uses async/await for non-blocking execution
 - **Message Flow**: Trace `sendMessage()` calls to understand cross-context communication
-- **State Inspection**: Check `WorkflowState.states` Map for active execution debugging
+
+### Web Mode
+- **Entry Point**: `index.html` → `src/main-web.js`
+- **Chrome API Shim**: `src/utils/shim-chrome.ts` MUST be imported first in main-web.js
+- **Storage**: `chrome.storage.local` maps to `localStorage` with prefix `automa_local_`
+- **No Extension APIs**: All chrome.* calls are mocked or no-ops
+- **Locales**: Only en and zh locales loaded (to avoid build errors from invalid locale files)
+
+### Module System Differences
+
+**Files using dynamic imports** (differ between Webpack and Vite):
+- `src/lib/compsUi.js` - UI component auto-registration
+- `src/lib/vueI18n.js` - Locale file loading
+- `src/workflowEngine/blocksHandler.js` - Background handlers
+- `src/content/blocksHandler.js` - Content script handlers
+- `src/components/newtab/workflow/WorkflowEditBlock.vue` - Edit components
+- `src/components/newtab/workflow/WorkflowEditor.vue` - Block visual components
+
+**Pattern used**:
+```js
+// Vite (web mode)
+const modules = import.meta.glob('./path/*.ext', { eager: true });
+const handlers = Object.keys(modules).reduce((acc, path) => {
+  const name = path.split('/').pop().replace(/\.ext$/, '');
+  acc[name] = modules[path].default;
+  return acc;
+}, {});
+
+// Webpack (extension mode) - not shown, but uses require.context
+```
 
 ## Block System Details
 
-56 block types organized by category:
+56+ block types organized by category:
 - **Control Flow**: trigger, conditions, loops (loopData, loopElements, whileLoop), waitConnections
 - **Browser Interaction**: click, type, attribute, screenshot, tab management
 - **Data Operations**: insertData, deleteData, dataMapping, variables
 - **Element Operations**: elementExists, createElement, hoverElement, scrollElement
 - **I/O**: importData, exportData, clipboard, saveAssets
 - **Integration**: googleSheets, webhook, aiWorkflow, executeWorkflow
+- **Custom**: CRM blocks and other business-specific blocks in `business/dev/blocks/`
 
 Block definitions in `src/utils/getSharedData.js` - contains metadata for each block type.
 
 ## Workflow Storage Format
 
-Workflows stored in browser.storage.local:
+Workflows stored in browser.storage.local (or localStorage in web mode):
 ```js
 {
   id, name, icon,
@@ -204,17 +259,62 @@ Workflows stored in browser.storage.local:
 
 Converted to traversable format by WorkflowEngine before execution.
 
-## Common Development Tasks
+## Custom Block Development
 
-When modifying workflow execution logic, test across all contexts:
-1. Background script (check console in `chrome://extensions` → Inspect service worker)
-2. Content script (check page console)
-3. Dashboard (check newtab console)
+Custom blocks are defined in `business/dev/blocks/`. To add a new block:
 
-When adding new block types:
-1. Create handler in `src/workflowEngine/blocksHandler/handlerXxx.js`
-2. Add block definition to `src/utils/getSharedData.js`
-3. Create UI component in `src/components/block/Block*.vue` if needed
+1. **Define Block** in `business/dev/blocks/index.js`:
+```js
+export default function () {
+  return {
+    'block-id': {
+      name: 'Block Name',
+      description: 'Block description',
+      icon: 'riIconName',
+      component: 'BlockBasic',
+      editComponent: 'EditMyBlock',
+      category: 'integration',
+      inputs: 1,
+      outputs: 1,
+      data: { /* default data */ },
+    },
+  };
+}
+```
+
+2. **Create Handler** in `business/dev/blocks/backgroundHandler/handlerMyBlock.js`:
+```js
+export default async function (block, { refData }) {
+  const { data } = block;
+  // Execute block logic
+  return {
+    data: result,
+    nextBlockId: block.id,
+  };
+}
+```
+
+3. **Create Edit Component** in `business/dev/blocks/editComponents/EditMyBlock.vue`:
+```vue
+<template>
+  <!-- Block configuration UI -->
+</template>
+
+<script setup>
+const props = defineProps({
+  data: { type: Object, default: () => ({}) },
+});
+const emit = defineEmits(['update:data']);
+</script>
+```
+
+4. **Register Edit Component** in `business/dev/blocks/editComponents/index.js`:
+```js
+import EditMyBlock from './EditMyBlock.vue';
+export default function () {
+  return { EditMyBlock };
+}
+```
 
 ## Icon Resources
 
@@ -222,77 +322,79 @@ Icons use v-remixicon. Preview available at: https://preview-v-remixicon.vercel.
 
 ---
 
-## Web Migration Project (In Progress)
+## Web Migration Project
 
 ### Overview
-Automa is being refactored to run as a standalone web application in addition to the browser extension. The goal is to decouple the UI layer from execution logic, making the frontend a "workflow designer" that generates standardized JSON execution plans.
+Automa is being refactored to run as a standalone web application in addition to the browser extension. **Phase 1 is COMPLETE**. The frontend now runs in standard browsers without extension context.
+
+### Current Status: Phase 1 Complete ✅
+
+**Completed Work**:
+1. ✅ Build system migrated to Vite for web mode
+2. ✅ Chrome API shim layer implemented (`src/utils/shim-chrome.ts`)
+3. ✅ Module system converted (require.context → import.meta.glob)
+4. ✅ Storage adapter (chrome.storage.local → localStorage)
+5. ✅ i18n locale loading fixed for Vite
+6. ✅ UI fully renders in web mode
+
+**Running Web Mode**:
+```bash
+pnpm dev:web          # Development server on localhost:3000
+pnpm build:web        # Production build to dist-web/
+pnpm preview:web      # Preview production build
+```
+
+**Key Files**:
+- `vite.config.ts` - Vite configuration for web mode
+- `index.html` - Web app entry point
+- `src/main-web.js` - Web initialization (imports shim first!)
+- `src/utils/shim-chrome.ts` - Chrome API mock layer (880+ lines)
 
 ### Architecture Design
-See `architecture-design/` directory for complete architectural documentation:
-- `README.md` - Complete architecture overview and design principles
-- `core-interfaces.ts` - TypeScript interface definitions for execution plans
-- `mock-runner.ts` - Mock execution engine for frontend testing
-- `architecture-diagrams.md` - Mermaid diagrams of the new architecture
 
-### Migration Phases
+Complete architectural documentation in `architecture-design/`:
+- `README.md` - DDD principles, design patterns
+- `core-interfaces.ts` - TypeScript interfaces for execution plans
+- `mock-runner.ts` - Mock execution engine
+- `architecture-diagrams.md` - Mermaid diagrams
 
-**Phase 1: Environment Migration (Current)**
-- Migrate build system from Webpack to Vite
-- Create Chrome API shim layer (`src/utils/shim-chrome.ts`)
-- Enable frontend to run in standard browser environment without extension context
-- Map `chrome.storage.local` → `localStorage` for UI persistence
+### Migration Documentation
+
+Detailed fix documentation:
+- `MODULE-SYSTEM-MIGRATION.md` - require.context → import.meta.glob conversion
+- `STORAGE-ONCHANGED-FIX.md` - Storage event handling fix
+- `INFINITE-LOADING-FIX.md` - Window type property fix
+- `I18N-LOCALE-FIX.md` - Locale loading for Vite
+- `WORKFLOW-TRIGGER-FIX.md` - Array type checking fix
+- `PHASE1-FINAL-STATUS.md` - Complete Phase 1 status and metrics
+
+### Known Limitations (Web Mode)
+
+1. **No Real Browser Automation**: chrome.tabs.*, chrome.debugger.* are mocked
+2. **Limited Locales**: Only en and zh loaded (other locales have syntax errors)
+3. **No Background/Content Scripts**: Only dashboard UI runs
+4. **Storage Events**: Limited cross-tab synchronization
+
+### Migration Principles
+
+1. **Backward Compatibility**: Extension mode continues working unchanged
+2. **Environment Detection**: Code detects extension vs web context
+3. **Dual Build**: Webpack (extension) and Vite (web) coexist
+4. **Gradual Migration**: UI refactored incrementally in future phases
+
+### Next Phases (Planned)
 
 **Phase 2: UI Layer Refactoring**
-- Refactor Vue 3 components to be environment-agnostic
-- Implement `WorkflowCompiler` to generate execution plans
-- Create JSON export/preview functionality
+- Environment-agnostic components
+- WorkflowCompiler for JSON export
+- Storage abstraction layer
 
 **Phase 3: Execution Abstraction**
-- Implement `RuntimeAdapter` interface
-- Create `ExtensionRuntimeAdapter` for current extension mode
-- Create `RemoteRuntimeAdapter` for future backend integration
+- RuntimeAdapter interface
+- ExtensionRuntimeAdapter
+- RemoteRuntimeAdapter for backend
 
 **Phase 4+: Advanced Features**
-- Remote execution support
-- Cloud workflow storage
+- Remote execution
+- Cloud storage
 - Multi-platform deployment
-
-### Key Migration Principles
-
-1. **Backward Compatibility**: Extension mode must continue working during migration
-2. **Gradual Refactoring**: UI components refactored incrementally
-3. **Environment Detection**: Code detects if running in extension vs web context
-4. **Dual Build**: Maintain both Webpack (extension) and Vite (web) builds temporarily
-
-### Running in Web Mode (After Phase 1)
-
-```bash
-# Development server (web mode)
-npm run dev:web
-
-# Build web application
-npm run build:web
-```
-
-### Chrome API Shim Layer
-
-When running in web mode, `src/utils/shim-chrome.ts` provides:
-- `chrome.storage.local` → `localStorage` adapter
-- `chrome.runtime.sendMessage` → console logging
-- Other extension APIs as no-ops or mocks
-
-Import shim before Vue app initialization:
-```js
-// src/main.js (web entry point)
-import './utils/shim-chrome'; // Must be first
-import { createApp } from 'vue';
-// ... rest of app
-```
-
-### Development Guidelines for Migration
-
-- **New Components**: Design to be environment-agnostic from the start
-- **Storage Access**: Use abstraction layer, not direct `chrome.storage` calls
-- **Message Passing**: Prepare for migration to event bus pattern
-- **Testing**: Test in both extension and web contexts
-- **Feature Flags**: Use environment detection for mode-specific features

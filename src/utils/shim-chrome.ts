@@ -67,6 +67,36 @@ if (!isExtensionContext) {
   // Storage API - Map to localStorage
   // ============================================================================
 
+  // ============================================================================
+  // Storage Event Handling - Cross-tab synchronization
+  // ============================================================================
+
+  const storageOnChangedEvent = createMockEvent('storage.onChanged');
+
+  // Listen to native storage events and convert to Chrome API format
+  window.addEventListener('storage', (event) => {
+    if (!event.key || !event.key.startsWith('automa_')) return;
+
+    const cleanKey = event.key.replace(/^automa_(local|sync|session)_/, '');
+    let storageArea = 'local';
+    if (event.key.startsWith('automa_sync_')) {
+      storageArea = 'sync';
+    } else if (event.key.startsWith('automa_session_')) {
+      storageArea = 'session';
+    }
+
+    const changes = {
+      [cleanKey]: {
+        oldValue: event.oldValue ? JSON.parse(event.oldValue) : undefined,
+        newValue: event.newValue ? JSON.parse(event.newValue) : undefined,
+      },
+    };
+
+    // eslint-disable-next-line no-console
+    console.log('[Shim] storage.onChanged triggered:', changes, storageArea);
+    storageOnChangedEvent._trigger(changes, storageArea);
+  });
+
   const createStorageArea = (storageType = 'local') => {
     const prefix = `automa_${storageType}_`;
 
@@ -316,7 +346,19 @@ if (!isExtensionContext) {
   const tabs = {
     query(queryInfo, callback) {
       console.log('[Shim] tabs.query:', queryInfo);
-      const mockTabs = [{ id: 1, url: 'about:blank', active: true }];
+      const mockTabs = [
+        {
+          id: 100,
+          windowId: 1,
+          url: 'https://example.com',
+          title: 'Mock Tab - Example',
+          active: true,
+          index: 0,
+          pinned: false,
+          highlighted: true,
+          incognito: false,
+        },
+      ];
       if (callback) callback(mockTabs);
       return Promise.resolve(mockTabs);
     },
@@ -410,14 +452,17 @@ if (!isExtensionContext) {
   // ============================================================================
 
   const windows = {
-    get(windowId, getInfo, callback) {
+    WINDOW_ID_CURRENT: -2,
+    WINDOW_ID_NONE: -1,
+
+    get(windowId, _getInfo, callback) {
       console.log('[Shim] windows.get:', windowId);
-      const mockWindow = { id: windowId };
+      const mockWindow = { id: windowId, focused: true, type: 'normal' };
       if (callback) callback(mockWindow);
       return Promise.resolve(mockWindow);
     },
 
-    getCurrent(getInfo, callback) {
+    getCurrent(_getInfo, callback) {
       console.log('[Shim] windows.getCurrent');
       // Mock window object for web mode
       // IMPORTANT: type must be 'popup' to bypass App.vue initialization checks
@@ -433,23 +478,47 @@ if (!isExtensionContext) {
       return Promise.resolve(mockWindow);
     },
 
-    getAll(getInfo, callback) {
+    getLastFocused(_getInfo, callback) {
+      console.log('[Shim] windows.getLastFocused');
+      // Return the last focused window (same as getCurrent for web mode)
+      const mockWindow = {
+        id: 1,
+        focused: true,
+        type: 'normal',
+        incognito: false,
+        alwaysOnTop: false,
+        tabs: [
+          {
+            id: 100,
+            windowId: 1,
+            url: 'https://example.com',
+            title: 'Mock Tab',
+            active: true,
+            index: 0,
+          },
+        ],
+      };
+      if (callback) callback(mockWindow);
+      return Promise.resolve(mockWindow);
+    },
+
+    getAll(_getInfo, callback) {
       console.log('[Shim] windows.getAll');
-      const mockWindows = [{ id: 1, focused: true }];
+      const mockWindows = [{ id: 1, focused: true, type: 'normal' }];
       if (callback) callback(mockWindows);
       return Promise.resolve(mockWindows);
     },
 
     create(createData, callback) {
       console.log('[Shim] windows.create:', createData);
-      const mockWindow = { id: Date.now() };
+      const mockWindow = { id: Date.now(), type: 'normal' };
       if (callback) callback(mockWindow);
       return Promise.resolve(mockWindow);
     },
 
     update(windowId, updateInfo, callback) {
       console.log('[Shim] windows.update:', { windowId, updateInfo });
-      const mockWindow = { id: windowId };
+      const mockWindow = { id: windowId, type: 'normal' };
       if (callback) callback(mockWindow);
       return Promise.resolve(mockWindow);
     },
@@ -464,6 +533,7 @@ if (!isExtensionContext) {
     onRemoved: createMockEvent('windows.onRemoved'),
     onCreated: createMockEvent('windows.onCreated'),
     onFocusChanged: createMockEvent('windows.onFocusChanged'),
+    onBoundsChanged: createMockEvent('windows.onBoundsChanged'),
   };
 
   // ============================================================================
@@ -714,21 +784,66 @@ if (!isExtensionContext) {
 
   const scripting = {
     executeScript(injection, callback) {
-      console.log('[Shim] scripting.executeScript (no-op in web mode)');
-      if (callback) callback([]);
-      return Promise.resolve([]);
+      console.log(
+        '[Shim] scripting.executeScript - Mock: Cannot inject scripts in web mode',
+        injection
+      );
+      // Return empty results array to prevent crashes
+      const results = [];
+      if (callback) callback(results);
+      return Promise.resolve(results);
     },
 
     insertCSS(injection, callback) {
-      console.log('[Shim] scripting.insertCSS (no-op in web mode)');
+      console.log(
+        '[Shim] scripting.insertCSS - Mock: Cannot insert CSS in web mode',
+        injection
+      );
       if (callback) callback();
       return Promise.resolve();
     },
 
     removeCSS(injection, callback) {
-      console.log('[Shim] scripting.removeCSS (no-op in web mode)');
+      console.log(
+        '[Shim] scripting.removeCSS - Mock: Cannot remove CSS in web mode',
+        injection
+      );
       if (callback) callback();
       return Promise.resolve();
+    },
+
+    registerContentScripts(_scripts, callback) {
+      console.log(
+        '[Shim] scripting.registerContentScripts - Mock (no-op)',
+        _scripts
+      );
+      if (callback) callback();
+      return Promise.resolve();
+    },
+
+    updateContentScripts(_scripts, callback) {
+      console.log(
+        '[Shim] scripting.updateContentScripts - Mock (no-op)',
+        _scripts
+      );
+      if (callback) callback();
+      return Promise.resolve();
+    },
+
+    unregisterContentScripts(_filter, callback) {
+      console.log(
+        '[Shim] scripting.unregisterContentScripts - Mock (no-op)',
+        _filter
+      );
+      if (callback) callback();
+      return Promise.resolve();
+    },
+
+    getRegisteredContentScripts(_filter, callback) {
+      console.log('[Shim] scripting.getRegisteredContentScripts - Mock (empty)');
+      const scripts = [];
+      if (callback) callback(scripts);
+      return Promise.resolve(scripts);
     },
   };
 
@@ -807,23 +922,66 @@ if (!isExtensionContext) {
   const commands = {
     getAll(callback) {
       console.log('[Shim] commands.getAll');
-      const commands = [];
-      if (callback) callback(commands);
-      return Promise.resolve(commands);
+      const commandsList = [];
+      if (callback) callback(commandsList);
+      return Promise.resolve(commandsList);
     },
     onCommand: createMockEvent('commands.onCommand'),
+  };
+
+  // ============================================================================
+  // i18n API - Internationalization
+  // ============================================================================
+
+  const i18n = {
+    getMessage(messageName, substitutions) {
+      // Simple fallback: return the key itself if no translation available
+      // In real extension, this would lookup from _locales/[lang]/messages.json
+      let message = messageName;
+
+      // Handle substitutions if provided
+      if (substitutions) {
+        const subs = Array.isArray(substitutions)
+          ? substitutions
+          : [substitutions];
+        subs.forEach((sub, index) => {
+          message = message.replace(`$${index + 1}`, sub);
+        });
+      }
+
+      return message;
+    },
+
+    getUILanguage() {
+      return navigator.language || 'en';
+    },
+
+    getAcceptLanguages(callback) {
+      const languages = [navigator.language || 'en'];
+      if (callback) callback(languages);
+      return Promise.resolve(languages);
+    },
+
+    detectLanguage(_text, callback) {
+      // eslint-disable-next-line no-console
+      console.log('[Shim] i18n.detectLanguage (mock)');
+      const result = { languages: [{ language: 'en', percentage: 100 }] };
+      if (callback) callback(result);
+      return Promise.resolve(result);
+    },
   };
 
   // ============================================================================
   // Assemble the chrome object
   // ============================================================================
 
+  // @ts-ignore - Cast to any to bypass TypeScript strict typing for mock layer
   window.chrome = {
     storage: {
       local: createStorageArea('local'),
       sync: createStorageArea('sync'),
       session: createStorageArea('session'),
-      onChanged: createMockEvent('storage.onChanged'),
+      onChanged: storageOnChangedEvent,
     },
     runtime,
     tabs,
@@ -842,6 +1000,7 @@ if (!isExtensionContext) {
     notifications,
     contextMenus,
     commands,
+    i18n,
   };
 
   // Also create 'browser' alias (for webextension-polyfill compatibility)
@@ -890,6 +1049,7 @@ export function getShimInfo() {
           'notifications',
           'contextMenus',
           'commands',
+          'i18n',
         ]
       : [],
   };
