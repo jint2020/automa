@@ -54,9 +54,9 @@
             :name="data.disableBlock ? 'riToggleLine' : 'riToggleFill'"
           />
         </button>
-        <button title="Run workflow from here" @click.stop="runWorkflow">
+        <!-- <button title="Run workflow from here" @click.stop="runWorkflow">
           <v-remixicon size="20" name="riPlayLine" />
-        </button>
+        </button> -->
         <button
           v-if="!blockData.details?.disableEdit"
           title="Edit block"

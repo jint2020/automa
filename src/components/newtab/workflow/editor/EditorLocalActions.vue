@@ -139,7 +139,7 @@
       >
         <v-remixicon name="riBug2Line" />
       </button>
-      <button
+      <!-- <button
         v-tooltip.group="
           `${t('common.execute')} (${
             shortcuts['editor:execute-workflow'].readable
@@ -149,7 +149,7 @@
         @click="executeCurrWorkflow"
       >
         <v-remixicon name="riPlayLine" />
-      </button>
+      </button> -->
     </template>
     <button
       v-else

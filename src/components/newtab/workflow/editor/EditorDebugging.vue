@@ -5,7 +5,7 @@
   >
     <div class="mr-4 w-52">
       <div class="flex items-center gap-2">
-        <ui-button
+        <!-- <ui-button
           :disabled="workflowState.state.nextBlockBreakpoint"
           variant="accent"
           class="flex-1"
@@ -28,7 +28,7 @@
               )
             }}
           </span>
-        </ui-button>
+        </ui-button> -->
         <ui-button
           v-tooltip="t('workflow.testing.nextBlock')"
           :disabled="workflowState.status !== 'breakpoint'"

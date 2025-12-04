@@ -23,6 +23,9 @@ const ERROR_MESSAGES = {
 const getBaseURL = () => {
   // Vite environment variable
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  // eslint-disable-next-line no-console
+  console.log('base', baseUrl);
+
   if (baseUrl) {
     // Ensure protocol is included
     if (baseUrl.startsWith('//')) {

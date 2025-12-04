@@ -1,3 +1,10 @@
+<!--
+ * @Description:
+ * @Author: Jin Tang
+ * @Date: 2025-11-25 17:58:34
+ * @LastEditors: Jin Tang
+ * @LastEditTime: 2025-12-04 10:46:48
+-->
 <template>
   <div class="space-y-2 px-5 pb-5">
     <ui-card
@@ -23,9 +30,9 @@
         </div>
       </div>
       <p v-if="workflow.isDisabled" class="text-sm text-gray-600">Disabled</p>
-      <button v-else title="Execute" @click="executeWorkflow(workflow)">
+      <!-- <button v-else title="Execute" @click="executeWorkflow(workflow)">
         <v-remixicon name="riPlayLine" />
-      </button>
+      </button> -->
     </ui-card>
   </div>
 </template>

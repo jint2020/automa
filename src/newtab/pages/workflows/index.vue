@@ -46,7 +46,7 @@
           </ui-popover>
         </div>
         <ui-list class="mt-6 space-y-2">
-          <ui-list-item
+          <!-- <ui-list-item
             tag="a"
             href="https://extension.automa.site/workflows"
             target="_blank"
@@ -55,7 +55,7 @@
             <span class="ml-4 capitalize">
               {{ t('workflow.browse') }}
             </span>
-          </ui-list-item>
+          </ui-list-item> -->
           <ui-expand
             v-if="state.teams.length > 0"
             append-icon
@@ -195,7 +195,7 @@
           </div>
           <div class="grow"></div>
           <div class="mt-4 flex w-full items-center md:mt-0 md:w-auto">
-            <span
+            <!-- <span
               v-tooltip:bottom.group="t('workflow.backupCloud')"
               class="mr-4"
             >
@@ -207,7 +207,7 @@
               >
                 <v-remixicon name="riUploadCloud2Line" />
               </ui-button>
-            </span>
+            </span> -->
             <div class="workflow-sort flex flex-1 items-center">
               <ui-button
                 icon

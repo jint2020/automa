@@ -22,13 +22,13 @@
         >
           Disabled
         </span>
-        <button
+        <!-- <button
           v-else-if="!disabled"
           class="invisible group-hover:visible"
           @click="$emit('execute', data)"
         >
           <v-remixicon name="riPlayLine" />
-        </button>
+        </button> -->
         <ui-popover v-if="showDetails" class="ml-2 h-6">
           <template #trigger>
             <button>

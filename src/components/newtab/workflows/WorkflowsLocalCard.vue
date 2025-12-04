@@ -22,13 +22,13 @@
         </template>
         <p v-else class="py-2">{{ t('common.disabled') }}</p>
         <div class="grow"></div>
-        <button
+        <!-- <button
           v-if="!workflow.isDisabled"
           class="invisible group-hover:visible"
           @click="$emit('execute')"
         >
           <v-remixicon name="riPlayLine" />
-        </button>
+        </button> -->
         <ui-popover class="ml-2 h-6">
           <template #trigger>
             <button>

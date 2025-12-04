@@ -1,4 +1,5 @@
 import { fetchApi } from '@/utils/api';
+import { getAllWorkflows } from '@/apis';
 import firstWorkflows from '@/utils/firstWorkflows';
 import { tasks } from '@/utils/shared';
 import {
@@ -113,27 +114,56 @@ export const useWorkflowStore = defineStore('workflow', {
   },
   actions: {
     async loadData() {
-      const { workflows, isFirstTime } = await browser.storage.local.get([
-        'workflows',
-        'isFirstTime',
-      ]);
+      try {
+        // Fetch workflows from API
+        const response = await getAllWorkflows();
+        const apiWorkflows = response.data?.data || response.data || [];
 
-      let localWorkflows = workflows || {};
+        // Convert array to object format
+        const workflowsObject = {};
+        if (Array.isArray(apiWorkflows)) {
+          apiWorkflows.forEach((workflow) => {
+            // Merge with default workflow structure to ensure all fields exist
+            workflowsObject[workflow.id] = defaultWorkflow(workflow, {
+              duplicateId: true,
+            });
+          });
+        }
 
-      if (isFirstTime) {
-        localWorkflows = firstWorkflows.map((workflow) =>
-          defaultWorkflow(workflow)
-        );
+        this.workflows = workflowsObject;
+        this.isFirstTime = false;
+        this.retrieved = true;
+
+        // Cache to local storage for offline access
         await browser.storage.local.set({
+          workflows: workflowsObject,
           isFirstTime: false,
-          workflows: localWorkflows,
         });
+      } catch (error) {
+        console.error('[WorkflowStore] Failed to fetch from API:', error);
+
+        // Fallback to local storage
+        const { workflows, isFirstTime } = await browser.storage.local.get([
+          'workflows',
+          'isFirstTime',
+        ]);
+
+        let localWorkflows = workflows || {};
+
+        if (isFirstTime) {
+          localWorkflows = firstWorkflows.map((workflow) =>
+            defaultWorkflow(workflow)
+          );
+          await browser.storage.local.set({
+            isFirstTime: false,
+            workflows: localWorkflows,
+          });
+        }
+
+        this.isFirstTime = isFirstTime;
+        this.workflows = convertWorkflowsToObject(localWorkflows);
+        this.retrieved = true;
       }
-
-      this.isFirstTime = isFirstTime;
-      this.workflows = convertWorkflowsToObject(localWorkflows);
-
-      this.retrieved = true;
     },
     updateStates(newStates) {
       this.states = newStates;

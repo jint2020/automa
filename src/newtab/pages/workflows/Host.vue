@@ -1,3 +1,10 @@
+<!--
+ * @Description:
+ * @Author: Jin Tang
+ * @Date: 2025-11-25 17:58:34
+ * @LastEditors: Jin Tang
+ * @LastEditTime: 2025-12-04 10:29:37
+-->
 <template>
   <div v-if="workflow" class="relative h-screen">
     <div class="absolute top-0 left-0 z-10 flex w-full items-center p-4">
@@ -54,7 +61,7 @@
         >
           <v-remixicon name="riFlashlightLine" />
         </button>
-        <button
+        <!-- <button
           v-tooltip.group="
             `${t('common.execute')} (${
               shortcut['editor:execute-workflow'].readable
@@ -64,7 +71,7 @@
           @click="executeCurrWorkflow"
         >
           <v-remixicon name="riPlayLine" />
-        </button>
+        </button> -->
       </ui-card>
       <ui-card padding="p-1 ml-4 flex items-center">
         <button

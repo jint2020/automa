@@ -12,9 +12,9 @@
       </p>
     </div>
     <p v-if="workflow.isDisabled">Disabled</p>
-    <button v-else title="Execute" @click="$emit('execute', workflow)">
+    <!-- <button v-else title="Execute" @click="$emit('execute', workflow)">
       <v-remixicon name="riPlayLine" />
-    </button>
+    </button> -->
     <v-remixicon
       v-if="workflow.isProtected"
       name="riShieldKeyholeLine"
