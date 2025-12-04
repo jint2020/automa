@@ -13,9 +13,15 @@ export function useEditorBlock(label) {
     if (!label) return;
 
     const details = blocks[label];
+    if (!details) {
+      // NOTE: Gracefully handle blocks that are not registered locally
+      block.details = { id: label };
+      block.category = null;
+      return;
+    }
 
     block.details = { id: label, ...details };
-    block.category = categories[details.category];
+    block.category = categories[details.category] || null;
   });
 
   return block;

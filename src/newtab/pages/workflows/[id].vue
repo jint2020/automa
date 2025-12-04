@@ -1,5 +1,24 @@
 <template>
-  <div v-if="workflow" class="flex" style="height: calc(100vh - 40px)">
+  <div
+    v-if="workflowFetchState.loading"
+    class="flex min-h-[200px] items-center justify-center py-10"
+  >
+    <p class="text-gray-600 dark:text-gray-200">
+      {{ te('common.loading') ? t('common.loading') : 'Loading...' }}
+    </p>
+  </div>
+  <div
+    v-else-if="workflowFetchState.error"
+    class="flex min-h-[200px] flex-col items-center justify-center space-y-4 py-10 text-center"
+  >
+    <p class="text-gray-600 dark:text-gray-200">
+      {{ workflowFetchState.error }}
+    </p>
+    <ui-button class="pointer-events-auto" @click="router.back()">
+      {{ te('common.back') ? t('common.back') : 'Back' }}
+    </ui-button>
+  </div>
+  <div v-else-if="workflow" class="flex" style="height: calc(100vh - 40px)">
     <div
       v-if="state.showSidebar && haveEditAccess"
       :class="
@@ -428,6 +447,10 @@ const state = reactive({
   workflowConverted: false,
   activeTab: route.query.tab || 'editor',
 });
+const workflowFetchState = reactive({
+  loading: false,
+  error: null,
+});
 const blockFolderModal = reactive({
   name: '',
   icon: '',
@@ -580,13 +603,73 @@ const workflowColumns = computed(() => {
     return connectedTable.value.columns;
   }
 
+  if (!workflow.value) {
+    return [];
+  }
+
   return workflow.value.table;
 });
 const editorData = computed(() => {
+  if (!workflow.value) {
+    return { nodes: [], edges: [] };
+  }
+
   if (isPackage) return workflow.value.data;
 
   return workflow.value.drawflow;
 });
+
+async function loadWorkflowDetail({ force = true } = {}) {
+  workflowFetchState.loading = true;
+  workflowFetchState.error = null;
+
+  try {
+    await workflowStore.fetchById(route.params.id, { force });
+  } catch (error) {
+    console.error(error);
+    workflowFetchState.error = error?.message || 'Failed to load workflow';
+  } finally {
+    workflowFetchState.loading = false;
+  }
+}
+
+function initializeWorkflowView() {
+  if (!workflow.value) {
+    if (!workflowFetchState.error) {
+      workflowFetchState.error = 'Workflow is unavailable';
+    }
+
+    router.replace(isPackage ? '/packages' : '/');
+    return;
+  }
+
+  const sidebarState =
+    JSON.parse(localStorage.getItem('workflow:sidebar')) ?? true;
+  state.showSidebar = sidebarState;
+  state.sidebarState = sidebarState;
+
+  if (!isPackage) {
+    const convertedData = convertWorkflowData(workflow.value);
+    updateWorkflow({ drawflow: convertedData.drawflow }).then(() => {
+      state.workflowConverted = true;
+    });
+  } else {
+    state.workflowConverted = true;
+  }
+
+  if (route.query.permission || (isTeamWorkflow && !haveEditAccess.value))
+    checkWorkflowPermission();
+
+  if (isTeamWorkflow && !haveEditAccess.value && workflow.value.updatedAt) {
+    checkWorkflowUpdate();
+  }
+
+  if (workflow.value.connectedTable) {
+    fetchConnectedTable();
+  }
+
+  initAutocomplete();
+}
 
 const updateBlockData = debounce((data) => {
   console.log('🚀 ~ updateBlockData ~ data:', data);
@@ -1587,8 +1670,13 @@ function onBeforeLeave() {
 }
 
 useHead({
-  title: () =>
-    `${workflow.value?.name} ${isPackage ? 'package' : 'workflow'}` || 'Automa',
+  title: () => {
+    if (workflow.value?.name) {
+      return `${workflow.value.name} ${isPackage ? 'package' : 'workflow'}`;
+    }
+
+    return 'Automa';
+  },
 });
 const shortcut = useShortcut([
   getShortcut('editor:toggle-sidebar', toggleSidebar),
@@ -1627,40 +1715,14 @@ onDeactivated(() => {
   });
 });
 onBeforeRouteLeave(onBeforeLeave);
-onMounted(() => {
-  if (!workflow.value) {
-    router.replace(isPackage ? '/packages' : '/');
-    return null;
-  }
+onMounted(async () => {
+  await loadWorkflowDetail({ force: true });
+  if (workflowFetchState.error) return;
 
-  const sidebarState =
-    JSON.parse(localStorage.getItem('workflow:sidebar')) ?? true;
-  state.showSidebar = sidebarState;
-  state.sidebarState = sidebarState;
-
-  if (!isPackage) {
-    const convertedData = convertWorkflowData(workflow.value);
-    updateWorkflow({ drawflow: convertedData.drawflow }).then(() => {
-      state.workflowConverted = true;
-    });
-  } else {
-    state.workflowConverted = true;
-  }
-
-  if (route.query.permission || (isTeamWorkflow && !haveEditAccess.value))
-    checkWorkflowPermission();
-
-  if (isTeamWorkflow && !haveEditAccess.value && workflow.value.updatedAt) {
-    checkWorkflowUpdate();
-  }
-
-  if (workflow.value.connectedTable) {
-    fetchConnectedTable();
-  }
-
-  initAutocomplete();
+  initializeWorkflowView();
 });
 onBeforeUnmount(() => {
+  if (!workflow.value) return;
   if (isPackage && workflow.value.isExternal) return;
   updateHostedWorkflow();
 });

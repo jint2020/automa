@@ -1,5 +1,5 @@
 import { fetchApi } from '@/utils/api';
-import { getAllWorkflows } from '@/apis';
+import { getAllWorkflows, getWorkflow } from '@/apis';
 import firstWorkflows from '@/utils/firstWorkflows';
 import { tasks } from '@/utils/shared';
 import {
@@ -163,6 +163,32 @@ export const useWorkflowStore = defineStore('workflow', {
         this.isFirstTime = isFirstTime;
         this.workflows = convertWorkflowsToObject(localWorkflows);
         this.retrieved = true;
+      }
+    },
+    async fetchById(id, { force = true } = {}) {
+      if (!id) return null;
+
+      if (!force && this.workflows[id]) {
+        return this.workflows[id];
+      }
+
+      try {
+        const response = await getWorkflow(id);
+        const workflowData = response.data?.data || response.data;
+
+        if (!workflowData) {
+          throw new Error('Workflow not found');
+        }
+
+        const workflow = defaultWorkflow(workflowData, { duplicateId: true });
+        this.workflows[workflow.id] = workflow;
+
+        await this.saveToStorage('workflows');
+
+        return workflow;
+      } catch (error) {
+        console.error('[WorkflowStore] Failed to fetch workflow:', error);
+        throw error;
       }
     },
     updateStates(newStates) {
