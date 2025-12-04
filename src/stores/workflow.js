@@ -2,6 +2,7 @@ import { fetchApi } from '@/utils/api';
 import {
   getAllWorkflows,
   getWorkflow,
+  createWorkflow as createWorkflowApi,
   updateWorkflow as updateWorkflowApi,
 } from '@/apis';
 import firstWorkflows from '@/utils/firstWorkflows';
@@ -200,25 +201,41 @@ export const useWorkflowStore = defineStore('workflow', {
     },
     async insert(data = {}, options = {}) {
       const insertedWorkflows = {};
+      const dataList = Array.isArray(data) ? data : [data];
 
-      if (Array.isArray(data)) {
-        data.forEach((item) => {
-          if (!options.duplicateId) {
-            delete item.id;
-          }
-
-          const workflow = defaultWorkflow(item, options);
-          this.workflows[workflow.id] = workflow;
-          insertedWorkflows[workflow.id] = workflow;
-        });
-      } else {
+      for (const item of dataList) {
         if (!options.duplicateId) {
-          delete data.id;
+          delete item.id;
         }
 
-        const workflow = defaultWorkflow(data, options);
-        this.workflows[workflow.id] = workflow;
-        insertedWorkflows[workflow.id] = workflow;
+        const workflowData = defaultWorkflow(item, options);
+
+        try {
+          // Create workflow via API and use backend-generated ID
+          const response = await createWorkflowApi(workflowData);
+          const apiWorkflow = response.data?.data || response.data;
+
+          if (apiWorkflow && apiWorkflow.id) {
+            // Use the ID from backend
+            const workflow = defaultWorkflow(apiWorkflow, {
+              duplicateId: true,
+            });
+            this.workflows[workflow.id] = workflow;
+            insertedWorkflows[workflow.id] = workflow;
+          } else {
+            // Fallback: use local workflow if API doesn't return ID
+            this.workflows[workflowData.id] = workflowData;
+            insertedWorkflows[workflowData.id] = workflowData;
+          }
+        } catch (error) {
+          console.error(
+            '[WorkflowStore] Failed to create workflow via API:',
+            error
+          );
+          // Fallback: save locally with frontend-generated ID
+          this.workflows[workflowData.id] = workflowData;
+          insertedWorkflows[workflowData.id] = workflowData;
+        }
       }
 
       await this.saveToStorage('workflows');
