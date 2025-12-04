@@ -18,6 +18,10 @@ export default function() {
 
 This file is git-ignored and required for the extension to build.
 
+## Node Version
+
+This project uses Node.js 20.11.1 (managed via Volta). See `package.json` for Volta config.
+
 ## Development Commands
 
 ```bash
@@ -41,6 +45,10 @@ pnpm build:zip        # Create zip from extension build folder
 pnpm lint             # ESLint
 pnpm prettier         # Format code
 ```
+
+**Git Hooks**: Pre-commit hook runs ESLint via lint-staged (configured in package.json).
+
+**Note**: This project has no automated test suite.
 
 ## Architecture Overview
 

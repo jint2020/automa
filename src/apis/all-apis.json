@@ -1,0 +1,2727 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "JFlow 工作流自动化引擎 API",
+    "description": "JFlow 是一个基于 Selenium 的浏览器自动化工作流引擎，支持可视化工作流编排、执行和管理",
+    "contact": {
+      "name": "JFlow Team",
+      "url": "",
+      "email": ""
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://132.110.77.54:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "工作流订单管理",
+      "description": "提交和管理工作流执行订单"
+    },
+    {
+      "name": "Order Management",
+      "description": "订单管理 API - 工作流执行订单的提交、查询和结果获取"
+    },
+    {
+      "name": "Throw Order Trigger",
+      "description": "甩单触发器 - 接收外部系统甩单，触发工作流执行"
+    },
+    {
+      "name": "Workflow Management",
+      "description": "工作流管理 API - 工作流的创建、查询、更新、删除和执行"
+    },
+    {
+      "name": "工作流流式执行",
+      "description": "提供 SSE (Server-Sent Events) 实时推送执行状态"
+    },
+    {
+      "name": "Block Registry",
+      "description": "块注册表 API - 查询可用的工作流块类型及其定义"
+    },
+    {
+      "name": "Workflow Publishing",
+      "description": "工作流发布 API - 将工作流发布为公共 API 端点供外部调用"
+    }
+  ],
+  "paths": {
+    "/api/workflows/{id}": {
+      "get": {
+        "tags": [
+          "Workflow Management"
+        ],
+        "summary": "获取工作流详情",
+        "description": "根据工作流 ID 获取完整的工作流配置和定义",
+        "operationId": "getWorkflow",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "工作流 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取工作流详情",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseWorkflow"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工作流不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseWorkflow"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Workflow Management"
+        ],
+        "summary": "更新工作流",
+        "description": "更新指定工作流的配置信息",
+        "operationId": "updateWorkflow",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "工作流 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkflowRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "工作流更新成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseWorkflow"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工作流不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseWorkflow"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Workflow Management"
+        ],
+        "summary": "删除工作流",
+        "description": "逻辑删除指定的工作流",
+        "operationId": "deleteWorkflow",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "工作流 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工作流不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{orderCode}/priority": {
+      "put": {
+        "tags": [
+          "工作流订单管理"
+        ],
+        "summary": "更新订单优先级",
+        "description": "更改待处理订单的优先级",
+        "operationId": "updatePriority",
+        "parameters": [
+          {
+            "name": "orderCode",
+            "in": "path",
+            "description": "Order code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "New priority value",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows": {
+      "get": {
+        "tags": [
+          "Workflow Management"
+        ],
+        "summary": "获取所有工作流",
+        "description": "获取系统中所有工作流的摘要列表",
+        "operationId": "getAllWorkflows",
+        "responses": {
+          "200": {
+            "description": "成功获取工作流列表",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListWorkflowSummaryDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Workflow Management"
+        ],
+        "summary": "创建新工作流",
+        "description": "创建一个新的工作流配置",
+        "operationId": "createWorkflow",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkflowRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "工作流创建成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseWorkflow"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数无效",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseWorkflow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows/{id}/unpublish": {
+      "post": {
+        "tags": [
+          "Workflow Publishing"
+        ],
+        "summary": "取消发布工作流",
+        "description": "撤销工作流的发布状态，移除公共 API 端点",
+        "operationId": "unpublishWorkflow",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "工作流 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "取消发布成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工作流不存在或未发布",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows/{id}/stop": {
+      "post": {
+        "tags": [
+          "Workflow Management"
+        ],
+        "summary": "停止工作流执行",
+        "description": "停止正在运行的工作流",
+        "operationId": "stopWorkflow",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "工作流 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "已停止",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "执行不存在或已停止",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows/{id}/publish": {
+      "post": {
+        "tags": [
+          "Workflow Publishing"
+        ],
+        "summary": "发布工作流",
+        "description": "将工作流发布为公共 API 端点，生成唯一的访问地址供外部系统调用",
+        "operationId": "publishWorkflow",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "工作流 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "发布成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePublishResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工作流不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePublishResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows/{id}/execute": {
+      "post": {
+        "tags": [
+          "Workflow Management"
+        ],
+        "summary": "执行工作流",
+        "description": "异步执行指定的工作流,返回执行ID用于后续查询状态",
+        "operationId": "executeWorkflow",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "工作流 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecuteWorkflowRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "工作流开始执行",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseExecutionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工作流不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseExecutionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows/{id}/execute-stream": {
+      "get": {
+        "tags": [
+          "工作流流式执行"
+        ],
+        "summary": "GET方式流式执行工作流",
+        "description": "通过GET方式流式执行工作流，用于简单测试场景",
+        "operationId": "executeWorkflowStreamGet",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功建立SSE连接",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/SseEmitter"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "工作流流式执行"
+        ],
+        "summary": "流式执行工作流",
+        "description": "通过SSE (Server-Sent Events) 流式执行工作流，客户端可以实时接收执行事件",
+        "operationId": "executeWorkflowStream",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecuteWorkflowRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功建立SSE连接",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/SseEmitter"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/throw-order": {
+      "post": {
+        "tags": [
+          "Throw Order Trigger"
+        ],
+        "summary": "接收甩单",
+        "description": "接收外部系统的甩单请求，根据业务名称触发对应工作流",
+        "operationId": "receiveOrder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThrowOrderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseThrowOrderResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/throw-order/legacy": {
+      "post": {
+        "tags": [
+          "Throw Order Trigger"
+        ],
+        "summary": "接收甩单（旧格式）",
+        "description": "兼容旧系统的甩单接口格式",
+        "operationId": "receiveLegacyOrder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LegacyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/throw-order/batch": {
+      "post": {
+        "tags": [
+          "Throw Order Trigger"
+        ],
+        "summary": "批量接收甩单",
+        "description": "批量接收外部系统的甩单请求",
+        "operationId": "receiveBatchOrders",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ThrowOrderRequest"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseThrowOrderResponse[]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{orderCode}/stop": {
+      "post": {
+        "tags": [
+          "工作流订单管理"
+        ],
+        "summary": "停止运行中的订单",
+        "description": "停止当前正在处理的订单",
+        "operationId": "stopOrder",
+        "parameters": [
+          {
+            "name": "orderCode",
+            "in": "path",
+            "description": "Order code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{orderCode}/retry": {
+      "post": {
+        "tags": [
+          "工作流订单管理"
+        ],
+        "summary": "重试失败的订单",
+        "description": "重试失败的订单",
+        "operationId": "retryOrder",
+        "parameters": [
+          {
+            "name": "orderCode",
+            "in": "path",
+            "description": "Order code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/submit": {
+      "post": {
+        "tags": [
+          "工作流订单管理"
+        ],
+        "summary": "提交工作流订单",
+        "description": "提交一个工作流以进行异步执行",
+        "operationId": "submitOrder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderSubmitRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/query": {
+      "post": {
+        "tags": [
+          "工作流订单管理"
+        ],
+        "summary": "查询订单",
+        "description": "带过滤条件查询订单",
+        "operationId": "queryOrders",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderQueryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/order/{workflowEndpoint}": {
+      "post": {
+        "tags": [
+          "Order Management"
+        ],
+        "summary": "提交工作流执行订单",
+        "description": "通过工作流端点提交订单，异步执行工作流并返回订单信息",
+        "operationId": "submitOrder_1",
+        "parameters": [
+          {
+            "name": "workflowEndpoint",
+            "in": "path",
+            "description": "工作流发布端点",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "my-workflow"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "订单提交成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数验证失败",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工作流不存在或未发布",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows/{id}/status": {
+      "get": {
+        "tags": [
+          "Workflow Management"
+        ],
+        "summary": "获取执行状态",
+        "description": "获取工作流的执行状态和统计信息",
+        "operationId": "getExecutionStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "工作流 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取执行状态",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseExecutionStatusDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "执行记录不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseExecutionStatusDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows/{id}/logs": {
+      "get": {
+        "tags": [
+          "Workflow Management"
+        ],
+        "summary": "获取执行日志",
+        "description": "分页获取工作流的执行日志",
+        "operationId": "getExecutionLogs",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "工作流 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "偏移量",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "限制数量",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取执行日志",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListExecutionLogDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows/{id}/form-schema": {
+      "get": {
+        "tags": [
+          "Workflow Publishing"
+        ],
+        "summary": "获取工作流表单 Schema",
+        "description": "获取已发布工作流的输入参数表单定义，用于动态生成前端表单",
+        "operationId": "getFormSchema",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "工作流 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取表单 Schema",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseFormSchemaResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工作流不存在或未发布",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseFormSchemaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows/published": {
+      "get": {
+        "tags": [
+          "Workflow Publishing"
+        ],
+        "summary": "获取已发布工作流列表",
+        "description": "查询所有已发布的工作流，支持按分类筛选",
+        "operationId": "getPublishedWorkflows",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "description": "工作流分类（可选）",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "automation"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取已发布工作流列表",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePublishedWorkflowListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{orderCode}": {
+      "get": {
+        "tags": [
+          "工作流订单管理"
+        ],
+        "summary": "获取订单详情",
+        "description": "根据订单代码检索订单信息",
+        "operationId": "getOrder",
+        "parameters": [
+          {
+            "name": "orderCode",
+            "in": "path",
+            "description": "Order code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "工作流订单管理"
+        ],
+        "summary": "取消订单",
+        "description": "取消待处理订单",
+        "operationId": "cancelOrder",
+        "parameters": [
+          {
+            "name": "orderCode",
+            "in": "path",
+            "description": "Order code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{orderCode}/position": {
+      "get": {
+        "tags": [
+          "工作流订单管理"
+        ],
+        "summary": "获取队列位置",
+        "description": "获取订单在队列中的当前位置",
+        "operationId": "getQueuePosition",
+        "parameters": [
+          {
+            "name": "orderCode",
+            "in": "path",
+            "description": "Order code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/stats": {
+      "get": {
+        "tags": [
+          "工作流订单管理"
+        ],
+        "summary": "获取调度器统计信息",
+        "description": "获取当前调度器统计信息",
+        "operationId": "getStats",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/order/{orderId}/status": {
+      "get": {
+        "tags": [
+          "Order Management"
+        ],
+        "summary": "查询订单执行状态",
+        "description": "根据订单 ID 查询工作流执行的实时状态、进度和当前步骤",
+        "operationId": "getOrderStatus",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "订单 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取订单状态",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderStatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "订单不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/order/{orderId}/result": {
+      "get": {
+        "tags": [
+          "Order Management"
+        ],
+        "summary": "获取订单执行结果",
+        "description": "获取已完成订单的执行结果数据和日志信息",
+        "operationId": "getOrderResult",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "订单 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取订单结果",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderResultResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "订单不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderResultResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/blocks": {
+      "get": {
+        "tags": [
+          "Block Registry"
+        ],
+        "summary": "获取所有块定义",
+        "description": "获取系统中所有可用的工作流块定义,包括块的名称、图标、输入输出配置等元数据",
+        "operationId": "getAllBlocks",
+        "responses": {
+          "200": {
+            "description": "成功获取所有块定义",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringBlockDefinition"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/blocks/{label}": {
+      "get": {
+        "tags": [
+          "Block Registry"
+        ],
+        "summary": "获取指定块定义",
+        "description": "根据块标签获取单个块的详细定义信息",
+        "operationId": "getBlock",
+        "parameters": [
+          {
+            "name": "label",
+            "in": "path",
+            "description": "块标签",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "event-click"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取块定义",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseBlockDefinition"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "块不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseBlockDefinition"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/blocks/category/{category}": {
+      "get": {
+        "tags": [
+          "Block Registry"
+        ],
+        "summary": "按分类获取块列表",
+        "description": "根据块分类(如 general、browser、web-interaction 等)获取该分类下的所有块定义",
+        "operationId": "getBlocksByCategory",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "description": "块分类",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "browser"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取分类下的块列表",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListBlockDefinition"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Dimensions": {
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Drawflow": {
+        "type": "object",
+        "properties": {
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Node"
+            }
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Edge"
+            }
+          },
+          "zoom": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "Edge": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "sourceHandle": {
+            "type": "string"
+          },
+          "targetHandle": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "label": {
+            "type": "string"
+          },
+          "markerEnd": {
+            "type": "string"
+          },
+          "selectable": {
+            "type": "boolean"
+          },
+          "updatable": {
+            "type": "boolean"
+          },
+          "sourceX": {
+            "type": "number",
+            "format": "double"
+          },
+          "sourceY": {
+            "type": "number",
+            "format": "double"
+          },
+          "targetX": {
+            "type": "number",
+            "format": "double"
+          },
+          "targetY": {
+            "type": "number",
+            "format": "double"
+          },
+          "className": {
+            "type": "string"
+          }
+        }
+      },
+      "Node": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "position": {
+            "$ref": "#/components/schemas/Position"
+          },
+          "dimensions": {
+            "$ref": "#/components/schemas/Dimensions"
+          },
+          "handleBounds": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "computedPosition": {
+            "$ref": "#/components/schemas/Position"
+          },
+          "selected": {
+            "type": "boolean"
+          },
+          "dragging": {
+            "type": "boolean"
+          },
+          "resizing": {
+            "type": "boolean"
+          },
+          "initialized": {
+            "type": "boolean"
+          },
+          "events": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "Position": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "format": "double"
+          },
+          "y": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "SelectOption": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateWorkflowRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "drawflow": {
+            "$ref": "#/components/schemas/Drawflow"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/WorkflowSettings"
+          }
+        },
+        "description": "工作流更新请求"
+      },
+      "ValidationRule": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "type": "string"
+          },
+          "minLength": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxLength": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "min": {
+            "type": "number",
+            "format": "double"
+          },
+          "max": {
+            "type": "number",
+            "format": "double"
+          },
+          "errorMessage": {
+            "type": "string"
+          }
+        }
+      },
+      "WorkflowMetadata": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "published": {
+            "type": "boolean"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "apiEndpoint": {
+            "type": "string"
+          }
+        }
+      },
+      "WorkflowParameter": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "defaultValue": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "placeholder": {
+            "type": "string"
+          },
+          "validation": {
+            "$ref": "#/components/schemas/ValidationRule"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectOption"
+            }
+          },
+          "group": {
+            "type": "string"
+          }
+        }
+      },
+      "WorkflowSettings": {
+        "type": "object",
+        "properties": {
+          "userDataDir": {
+            "type": "string"
+          },
+          "headless": {
+            "type": "boolean"
+          },
+          "windowWidth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "windowHeight": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "proxy": {
+            "type": "string"
+          },
+          "defaultVars": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "inputParameters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowParameter"
+            }
+          },
+          "outputParameters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowParameter"
+            }
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/WorkflowMetadata"
+          },
+          "debugMode": {
+            "type": "boolean"
+          },
+          "blockDelay": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "saveLog": {
+            "type": "boolean"
+          },
+          "restartTimes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notification": {
+            "type": "boolean"
+          },
+          "execContext": {
+            "type": "string"
+          },
+          "onError": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseWorkflow": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Workflow"
+          }
+        }
+      },
+      "Column": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "Workflow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "drawflow": {
+            "$ref": "#/components/schemas/Drawflow"
+          },
+          "table": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Column"
+            }
+          },
+          "settings": {
+            "$ref": "#/components/schemas/WorkflowSettings"
+          },
+          "globalData": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "teamId": {
+            "type": "string"
+          },
+          "hostId": {
+            "type": "string"
+          },
+          "testingMode": {
+            "type": "boolean"
+          },
+          "disabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreateWorkflowRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "drawflow": {
+            "$ref": "#/components/schemas/Drawflow"
+          }
+        },
+        "description": "工作流创建请求"
+      },
+      "ApiResponseVoid": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      },
+      "PublishRequest": {
+        "type": "object",
+        "properties": {
+          "targetSystemUrl": {
+            "type": "string"
+          },
+          "apiEndpoint": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "description": "发布配置"
+      },
+      "ApiResponsePublishResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PublishResponse"
+          }
+        }
+      },
+      "PublishResponse": {
+        "type": "object",
+        "properties": {
+          "workflowId": {
+            "type": "string"
+          },
+          "apiEndpoint": {
+            "type": "string"
+          },
+          "formSchemaUrl": {
+            "type": "string"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ExecuteWorkflowRequest": {
+        "type": "object",
+        "properties": {
+          "variables": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "headless": {
+            "type": "boolean"
+          }
+        },
+        "description": "执行请求参数"
+      },
+      "ApiResponseExecutionResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ExecutionResponse"
+          }
+        }
+      },
+      "ExecutionResponse": {
+        "type": "object",
+        "properties": {
+          "executionId": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "SseEmitter": {
+        "type": "object",
+        "properties": {
+          "timeout": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ThrowOrderRequest": {
+        "required": [
+          "businessName",
+          "sourceOrderCode"
+        ],
+        "type": "object",
+        "properties": {
+          "businessName": {
+            "type": "string",
+            "description": "业务名称",
+            "example": "电信宽带办理"
+          },
+          "sourceOrderCode": {
+            "type": "string",
+            "description": "来源订单号",
+            "example": "SRC202312010001"
+          },
+          "sourceSystem": {
+            "type": "string",
+            "description": "来源系统标识",
+            "example": "throw_order_system"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "业务参数"
+            },
+            "description": "业务参数"
+          },
+          "callbackUrl": {
+            "type": "string",
+            "description": "回调地址",
+            "example": "http://example.com/callback"
+          },
+          "callbackToken": {
+            "type": "string",
+            "description": "回调Token"
+          },
+          "priority": {
+            "type": "integer",
+            "description": "优先级",
+            "format": "int32",
+            "example": 100,
+            "default": 100
+          }
+        },
+        "description": "甩单请求"
+      },
+      "ApiResponseThrowOrderResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ThrowOrderResponse"
+          }
+        }
+      },
+      "ThrowOrderResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "是否成功"
+          },
+          "orderCode": {
+            "type": "string",
+            "description": "JFlow 订单编码",
+            "example": "JF202312010001"
+          },
+          "sourceOrderCode": {
+            "type": "string",
+            "description": "来源订单号",
+            "example": "SRC202312010001"
+          },
+          "workflowId": {
+            "type": "string",
+            "description": "工作流ID"
+          },
+          "message": {
+            "type": "string",
+            "description": "消息"
+          },
+          "errorCode": {
+            "type": "string",
+            "description": "错误代码"
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "错误信息"
+          }
+        },
+        "description": "甩单响应"
+      },
+      "LegacyRequest": {
+        "type": "object",
+        "properties": {
+          "businessName": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "callbackUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "LegacyResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/LegacyResponseData"
+          }
+        }
+      },
+      "LegacyResponseData": {
+        "type": "object",
+        "properties": {
+          "orderCode": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseThrowOrderResponse[]": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ThrowOrderResponse"
+            }
+          }
+        }
+      },
+      "OrderSubmitRequest": {
+        "required": [
+          "workflowId"
+        ],
+        "type": "object",
+        "properties": {
+          "workflowId": {
+            "type": "string",
+            "description": "Workflow ID to execute"
+          },
+          "businessName": {
+            "type": "string",
+            "description": "Business name/description"
+          },
+          "inputParams": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Input parameters (JSON object)"
+            },
+            "description": "Input parameters (JSON object)"
+          },
+          "priority": {
+            "type": "integer",
+            "description": "Priority (1-999, higher = lower priority)",
+            "format": "int32",
+            "example": 100
+          },
+          "callbackUrl": {
+            "type": "string",
+            "description": "Callback URL for async notification"
+          },
+          "isBatch": {
+            "type": "boolean",
+            "description": "Is batch order"
+          },
+          "batchId": {
+            "type": "string",
+            "description": "Batch ID (for grouped orders)"
+          },
+          "maxRetries": {
+            "type": "integer",
+            "description": "Maximum retry attempts",
+            "format": "int32",
+            "example": 3
+          }
+        },
+        "description": "Workflow Order Submission Request"
+      },
+      "OrderQueryRequest": {
+        "type": "object",
+        "properties": {
+          "orderCode": {
+            "type": "string",
+            "description": "Order code"
+          },
+          "workflowId": {
+            "type": "string",
+            "description": "Workflow ID"
+          },
+          "status": {
+            "type": "integer",
+            "description": "Order status (0:Pending, 2:Processing, 3:Failed, 4:Success)",
+            "format": "int32"
+          },
+          "batchId": {
+            "type": "string",
+            "description": "Batch ID"
+          },
+          "startTime": {
+            "type": "string",
+            "description": "Start time (from)",
+            "format": "date-time"
+          },
+          "endTime": {
+            "type": "string",
+            "description": "End time (to)",
+            "format": "date-time"
+          },
+          "pageNum": {
+            "type": "integer",
+            "description": "Page number",
+            "format": "int32",
+            "example": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": "Page size",
+            "format": "int32",
+            "example": 20
+          }
+        },
+        "description": "Order Query Request"
+      },
+      "OrderRequest": {
+        "required": [
+          "parameters"
+        ],
+        "type": "object",
+        "properties": {
+          "parameters": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "callbackUrl": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "operatorId": {
+            "type": "string"
+          },
+          "operatorName": {
+            "type": "string"
+          }
+        },
+        "description": "订单请求参数"
+      },
+      "ApiResponseOrderResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrderResponse"
+          }
+        }
+      },
+      "OrderResponse": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "statusUrl": {
+            "type": "string"
+          },
+          "resultUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseListWorkflowSummaryDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowSummaryDto"
+            }
+          }
+        }
+      },
+      "WorkflowSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "blockCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponseExecutionStatusDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ExecutionStatusDto"
+          }
+        }
+      },
+      "ExecutionStatusDto": {
+        "type": "object",
+        "properties": {
+          "executionId": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "IDLE",
+              "RUNNING",
+              "PAUSED",
+              "STOPPED",
+              "ERROR"
+            ]
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totalBlocksExecuted": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errorCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "running": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponseListExecutionLogDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExecutionLogDto"
+            }
+          }
+        }
+      },
+      "ExecutionLogDto": {
+        "type": "object",
+        "properties": {
+          "nodeId": {
+            "type": "string"
+          },
+          "nodeName": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "INFO",
+              "WARN",
+              "ERROR",
+              "DEBUG"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseFormSchemaResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FormSchemaResponse"
+          }
+        }
+      },
+      "FormGroup": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "fieldNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "FormSchemaResponse": {
+        "type": "object",
+        "properties": {
+          "workflowId": {
+            "type": "string"
+          },
+          "workflowName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowParameter"
+            }
+          },
+          "submitUrl": {
+            "type": "string"
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FormGroup"
+            }
+          }
+        }
+      },
+      "ApiResponsePublishedWorkflowListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PublishedWorkflowListResponse"
+          }
+        }
+      },
+      "PublishedWorkflowItem": {
+        "type": "object",
+        "properties": {
+          "workflowId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "apiEndpoint": {
+            "type": "string"
+          },
+          "formSchemaUrl": {
+            "type": "string"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PublishedWorkflowListResponse": {
+        "type": "object",
+        "properties": {
+          "workflows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublishedWorkflowItem"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseOrderStatusResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrderStatusResponse"
+          }
+        }
+      },
+      "OrderStatusResponse": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "progress": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currentStep": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseOrderResultResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrderResultResponse"
+          }
+        }
+      },
+      "OrderResultResponse": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "result": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "errorMessage": {
+            "type": "string"
+          },
+          "logUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseMapStringBlockDefinition": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/BlockDefinition"
+            }
+          }
+        }
+      },
+      "BlockDefinition": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "component": {
+            "type": "string"
+          },
+          "editComponent": {
+            "type": "string"
+          },
+          "inputs": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "outputs": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "allowedInputs": {
+            "type": "boolean"
+          },
+          "maxConnection": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "disableEdit": {
+            "type": "boolean"
+          },
+          "refDataKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "isAdvanced": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponseBlockDefinition": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/BlockDefinition"
+          }
+        }
+      },
+      "ApiResponseListBlockDefinition": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlockDefinition"
+            }
+          }
+        }
+      }
+    }
+  }
+}
