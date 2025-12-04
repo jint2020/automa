@@ -1,5 +1,9 @@
 import { fetchApi } from '@/utils/api';
-import { getAllWorkflows, getWorkflow } from '@/apis';
+import {
+  getAllWorkflows,
+  getWorkflow,
+  updateWorkflow as updateWorkflowApi,
+} from '@/apis';
 import firstWorkflows from '@/utils/firstWorkflows';
 import { tasks } from '@/utils/shared';
 import {
@@ -262,6 +266,19 @@ export const useWorkflowStore = defineStore('workflow', {
         });
       } else {
         workflowUpdater(id);
+      }
+
+      // Save to API
+      try {
+        const workflowIds = Object.keys(updatedWorkflows);
+        await Promise.all(
+          workflowIds.map((workflowId) =>
+            updateWorkflowApi(workflowId, updatedWorkflows[workflowId])
+          )
+        );
+      } catch (error) {
+        console.error('[WorkflowStore] Failed to save to API:', error);
+        // Still save to local storage as fallback
       }
 
       await this.saveToStorage('workflows');
