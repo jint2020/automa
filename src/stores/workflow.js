@@ -4,6 +4,7 @@ import {
   getWorkflow,
   createWorkflow as createWorkflowApi,
   updateWorkflow as updateWorkflowApi,
+  deleteWorkflow as deleteWorkflowApi,
 } from '@/apis';
 import firstWorkflows from '@/utils/firstWorkflows';
 import { tasks } from '@/utils/shared';
@@ -335,6 +336,23 @@ export const useWorkflowStore = defineStore('workflow', {
       return insertedData;
     },
     async delete(id) {
+      // Handle array of IDs
+      const workflowIds = Array.isArray(id) ? id : [id];
+
+      // Try to delete from API first
+      for (const workflowId of workflowIds) {
+        try {
+          await deleteWorkflowApi(workflowId);
+        } catch (error) {
+          console.error(
+            '[WorkflowStore] Failed to delete workflow via API:',
+            error
+          );
+          // Continue with local deletion as fallback
+        }
+      }
+
+      // Delete from local state
       if (Array.isArray(id)) {
         id.forEach((workflowId) => {
           delete this.workflows[workflowId];

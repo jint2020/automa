@@ -388,12 +388,12 @@ const packageStore = usePackageStore();
 const workflowStore = useWorkflowStore();
 const teamWorkflowStore = useTeamWorkflowStore();
 const sharedWorkflowStore = useSharedWorkflowStore();
-const shortcuts = useShortcut([
+const shortcuts = useShortcut(
   /* eslint-disable-next-line */
   getShortcut('editor:save', saveWorkflow),
   /* eslint-disable-next-line */
-  getShortcut('editor:execute-workflow', executeCurrWorkflow),
-]);
+  getShortcut('editor:execute-workflow', executeCurrWorkflow)
+);
 
 const { teamId } = router.currentRoute.value.params;
 
