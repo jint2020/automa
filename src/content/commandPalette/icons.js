@@ -14,6 +14,7 @@ import {
   riCommandLine,
   riExternalLinkLine,
   riArrowDropDownLine,
+  riAccountCircleLine,
 } from 'v-remixicon/icons';
 
 export default {
@@ -32,4 +33,5 @@ export default {
   riCommandLine,
   riExternalLinkLine,
   riArrowDropDownLine,
+  riAccountCircleLine,
 };

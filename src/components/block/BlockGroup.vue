@@ -55,7 +55,7 @@
           @dragend="onDragEnd(element.itemId)"
         >
           <v-remixicon
-            :name="tasks[element.id].icon"
+            :name="allBlocks[element.id].icon"
             size="20"
             class="shrink-0"
           />
@@ -64,7 +64,7 @@
               {{
                 getTranslation(
                   `workflow.blocks.${element.id}.name`,
-                  tasks[element.id].name
+                  allBlocks[element.id].name
                 )
               }}
             </p>
@@ -126,7 +126,8 @@ import { nanoid } from 'nanoid';
 import { useToast } from 'vue-toastification';
 import { Handle, Position } from '@vue-flow/core';
 import draggable from 'vuedraggable';
-import { tasks, excludeGroupBlocks } from '@/utils/shared';
+import { excludeGroupBlocks } from '@/utils/shared';
+import { getBlocks } from '@/utils/getSharedData';
 import { useComponentId } from '@/composable/componentId';
 import { useEditorBlock } from '@/composable/editorBlock';
 import BlockBase from './BlockBase.vue';
@@ -162,6 +163,9 @@ const block = useEditorBlock(props.label);
 
 const workflow = inject('workflow', {});
 
+// Get all blocks including custom blocks
+const allBlocks = getBlocks();
+
 const blocks = computed(() =>
   Array.isArray(props.data.blocks)
     ? props.data.blocks
@@ -179,7 +183,7 @@ function editItemSettings(element) {
 function onDragStart(item, event) {
   event.dataTransfer.setData(
     'block',
-    JSON.stringify({ ...tasks[item.id], ...item, fromGroup: true })
+    JSON.stringify({ ...allBlocks[item.id], ...item, fromGroup: true })
   );
 }
 function onDragEnd(itemId) {
