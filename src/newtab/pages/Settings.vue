@@ -1,3 +1,10 @@
+<!--
+ * @Description:
+ * @Author: Jin Tang
+ * @Date: 2025-11-25 17:58:34
+ * @LastEditors: Jin Tang
+ * @LastEditTime: 2025-12-05 14:43:03
+-->
 <template>
   <div class="container pt-8 pb-4">
     <h1 class="mb-10 text-2xl font-semibold">{{ t('common.settings') }}</h1>
@@ -49,7 +56,7 @@ const router = useRouter();
 
 const menus = [
   { id: 'general', path: '/settings', icon: 'riSettings3Line' },
-  { id: 'backup', path: '/backup', icon: 'riDatabase2Line' },
+  // { id: 'backup', path: '/backup', icon: 'riDatabase2Line' },
   { id: 'editor', path: '/editor', icon: 'riMindMap' },
   { id: 'shortcuts', path: '/shortcuts', icon: 'riKeyboardLine' },
   { id: 'about', path: '/about', icon: 'riInformationLine' },

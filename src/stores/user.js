@@ -31,13 +31,33 @@ export const useUserStore = defineStore('user', {
           async () => {
             try {
               const response = await fetchApi('/me', { auth: true });
+
+              // Check if response is OK first
+              if (!response.ok) {
+                console.warn(
+                  '[UserStore] Failed to load user profile:',
+                  response.status,
+                  response.statusText
+                );
+                return null;
+              }
+
+              // Check if response is JSON
+              const contentType = response.headers.get('content-type');
+              if (!contentType || !contentType.includes('application/json')) {
+                console.warn(
+                  '[UserStore] User profile endpoint did not return JSON'
+                );
+                return null;
+              }
+
               const result = await response.json();
-
-              if (!response.ok) throw new Error(response.message);
-
               return result;
             } catch (error) {
-              console.error(error);
+              console.warn(
+                '[UserStore] Error loading user profile:',
+                error.message
+              );
               return null;
             }
           },

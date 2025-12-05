@@ -83,7 +83,21 @@ export async function getSharedWorkflows(useCache = true) {
       try {
         const response = await fetchApi('/me/workflows/shared?data=all');
 
-        if (response.status !== 200) throw new Error(response.statusText);
+        if (response.status !== 200) {
+          console.warn(
+            '[API] Failed to fetch shared workflows:',
+            response.status,
+            response.statusText
+          );
+          return {};
+        }
+
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          console.warn('[API] Shared workflows endpoint did not return JSON');
+          return {};
+        }
 
         const result = await response.json();
         const sharedWorkflows = result.reduce((acc, item) => {
@@ -120,7 +134,21 @@ export async function getUserWorkflows(useCache = true) {
           { auth: true }
         );
 
-        if (!response.ok) throw new Error(response.statusText);
+        if (!response.ok) {
+          console.warn(
+            '[API] Failed to fetch user workflows:',
+            response.status,
+            response.statusText
+          );
+          return { hosted: {}, backup: [] };
+        }
+
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          console.warn('[API] User workflows endpoint did not return JSON');
+          return { hosted: {}, backup: [] };
+        }
 
         const result = await response.json();
         const workflows = result.reduce(

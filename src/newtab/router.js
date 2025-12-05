@@ -6,10 +6,10 @@ import WorkflowContainer from './pages/Workflows.vue';
 import WorkflowHost from './pages/workflows/Host.vue';
 import WorkflowDetails from './pages/workflows/[id].vue';
 import WorkflowShared from './pages/workflows/Shared.vue';
-import ScheduledWorkflow from './pages/ScheduledWorkflow.vue';
+// import ScheduledWorkflow from './pages/ScheduledWorkflow.vue';
 import Storage from './pages/Storage.vue';
 import StorageTables from './pages/storage/Tables.vue';
-import LogsDetails from './pages/logs/[id].vue';
+// import LogsDetails from './pages/logs/[id].vue';
 import Recording from './pages/Recording.vue';
 import Settings from './pages/Settings.vue';
 import SettingsIndex from './pages/settings/SettingsIndex.vue';
@@ -76,11 +76,11 @@ const routes = [
       },
     ],
   },
-  {
-    name: 'schedule',
-    path: '/schedule',
-    component: ScheduledWorkflow,
-  },
+  // {
+  //   name: 'schedule',
+  //   path: '/schedule',
+  //   component: ScheduledWorkflow,
+  // },
   {
     name: 'storage',
     path: '/storage',
@@ -91,11 +91,11 @@ const routes = [
     path: '/storage/tables/:id',
     component: StorageTables,
   },
-  {
-    name: 'logs-details',
-    path: '/logs/:id?',
-    component: LogsDetails,
-  },
+  // {
+  //   name: 'logs-details',
+  //   path: '/logs/:id?',
+  //   component: LogsDetails,
+  // },
   {
     path: '/settings',
     component: Settings,

@@ -49,13 +49,13 @@
       </router-link>
     </div>
     <hr class="my-4 w-8/12" />
-    <button
+    <!-- <button
       v-tooltip:right.group="$t('home.elementSelector.name')"
       class="focus:ring-0"
       @click="injectElementSelector"
     >
       <v-remixicon name="riFocus3Line" />
-    </button>
+    </button> -->
     <div class="grow"></div>
     <ui-popover
       v-if="userStore.user"
@@ -116,20 +116,20 @@
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
-import { useToast } from 'vue-toastification';
+// import { useToast } from 'vue-toastification';
 import browser from 'webextension-polyfill';
 import { useUserStore } from '@/stores/user';
 import { useWorkflowStore } from '@/stores/workflow';
 import { useShortcut, getShortcut } from '@/composable/shortcut';
 import { useGroupTooltip } from '@/composable/groupTooltip';
 import { communities } from '@/utils/shared';
-import { initElementSelector } from '@/newtab/utils/elementSelector';
+// import { initElementSelector } from '@/newtab/utils/elementSelector';
 import emitter from '@/lib/mitt';
 
 useGroupTooltip();
 
 const { t } = useI18n();
-const toast = useToast();
+// const toast = useToast();
 const router = useRouter();
 const userStore = useUserStore();
 const workflowStore = useWorkflowStore();
@@ -153,24 +153,24 @@ const tabs = [
     path: '/packages',
     shortcut: '',
   },
-  {
-    id: 'schedule',
-    icon: 'riTimeLine',
-    path: '/schedule',
-    shortcut: getShortcut('page:schedule', '/triggers'),
-  },
+  // {
+  //   id: 'schedule',
+  //   icon: 'riTimeLine',
+  //   path: '/schedule',
+  //   shortcut: getShortcut('page:schedule', '/triggers'),
+  // },
   {
     id: 'storage',
     icon: 'riHardDrive2Line',
     path: '/storage',
     shortcut: getShortcut('page:storage', '/storage'),
   },
-  {
-    id: 'log',
-    icon: 'riHistoryLine',
-    path: '/logs',
-    shortcut: getShortcut('page:logs', '/logs'),
-  },
+  // {
+  //   id: 'log',
+  //   icon: 'riHistoryLine',
+  //   path: '/logs',
+  //   shortcut: getShortcut('page:logs', '/logs'),
+  // },
   {
     id: 'settings',
     icon: 'riSettings3Line',
@@ -215,19 +215,19 @@ function hoverHandler({ target }) {
   showHoverIndicator.value = true;
   hoverIndicator.value.style.transform = `translate(-50%, ${target.offsetTop}px)`;
 }
-async function injectElementSelector() {
-  try {
-    const [tab] = await browser.tabs.query({ active: true, url: '*://*/*' });
-    if (!tab) {
-      toast.error(t('home.elementSelector.noAccess'));
-      return;
-    }
+// async function injectElementSelector() {
+//   try {
+//     const [tab] = await browser.tabs.query({ active: true, url: '*://*/*' });
+//     if (!tab) {
+//       toast.error(t('home.elementSelector.noAccess'));
+//       return;
+//     }
 
-    await initElementSelector();
-  } catch (error) {
-    console.error(error);
-  }
-}
+//     await initElementSelector();
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
 </script>
 <style scoped>
 .tab.is-active:after {
