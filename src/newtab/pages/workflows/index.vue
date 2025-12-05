@@ -28,7 +28,7 @@
               >
                 {{ t('workflow.import') }}
               </ui-list-item>
-              <ui-list-item
+              <!-- <ui-list-item
                 v-close-popover
                 class="cursor-pointer"
                 @click="initRecordWorkflow"
@@ -41,7 +41,7 @@
                 @click="addHostedWorkflow"
               >
                 {{ t('workflow.host.add') }}
-              </ui-list-item>
+              </ui-list-item> -->
             </ui-list>
           </ui-popover>
         </div>
