@@ -693,14 +693,13 @@ const updateBlockData = debounce((data) => {
     autocompleteId = editState.blockData.blockId;
   }
 
-  if (autocompleteState.blocks[autocompleteId]) {
-    const { id, blockId } = editState.blockData;
-    Object.assign(
-      autocompleteState.blocks,
-      /* eslint-disable-next-line */
-      extractAutocopmleteData(id, { data, id: blockId })
-    );
-  }
+  // 总是更新自动补全数据，即使节点是新添加的
+  const { id, blockId } = editState.blockData;
+  Object.assign(
+    autocompleteState.blocks,
+    /* eslint-disable-next-line */
+    extractAutocopmleteData(id, { data, id: blockId })
+  );
 
   editState.blockData.data = data;
   state.dataChanged = true;

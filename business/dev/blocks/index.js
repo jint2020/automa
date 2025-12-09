@@ -3,7 +3,7 @@
  * @Author: Jin Tang
  * @Date: 2025-11-25 17:58:34
  * @LastEditors: Jin Tang
- * @LastEditTime: 2025-12-05 11:03:36
+ * @LastEditTime: 2025-12-09 11:03:26
  */
 export default function () {
   return {
@@ -19,14 +19,14 @@ export default function () {
       outputs: 1,
       maxConnection: 1,
       allowedInputs: true,
+      autocomplete: ['variableName'],
       data: {
         disableBlock: false,
         description: '',
         queryType: 'accessNumber',
-        queryParams: 'accessNumber:orient',
-        dataColumn: 'customerInfo',
+        queryValue: '',
         assignVariable: true,
-        variableName: 'customerData',
+        variableName: '',
       },
     },
   };
