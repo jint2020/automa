@@ -1,3 +1,9 @@
+import handlerCRMGetCustomer from './handlerCRMGetCustomer';
+import handlerLogin from './handlerLogin';
+
 export default function () {
-  return {};
+  return {
+    ...handlerCRMGetCustomer(),
+    ...handlerLogin(),
+  };
 }

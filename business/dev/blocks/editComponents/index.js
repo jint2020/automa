@@ -6,12 +6,14 @@
  * @LastEditTime: 2025-11-26 11:37:55
  */
 import EditCRMGetCustomer from './EditCRMGetCustomer.vue';
+import EditLogin from './EditLogin.vue';
 // import EditCRMUpdateCustomer from './EditCRMUpdateCustomer.vue';
 // import EditCRMCreateOrder from './EditCRMCreateOrder.vue';
 
 export default function () {
   return {
     EditCRMGetCustomer,
+    EditLogin,
     // EditCRMUpdateCustomer,
     // EditCRMCreateOrder,
   };
