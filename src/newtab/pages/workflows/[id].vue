@@ -672,7 +672,6 @@ function initializeWorkflowView() {
 }
 
 const updateBlockData = debounce((data) => {
-  console.log('🚀 ~ updateBlockData ~ data:', data);
   if (!haveEditAccess.value) return;
   const node = editor.value.getNode.value(editState.blockData.blockId);
   const dataCopy = JSON.parse(JSON.stringify(data));

@@ -7,6 +7,7 @@
  */
 import EditCRMGetCustomer from './EditCRMGetCustomer.vue';
 import EditLogin from './EditLogin.vue';
+import EditIndependentProdOrder from './EditIndependentProdOrder.vue';
 // import EditCRMUpdateCustomer from './EditCRMUpdateCustomer.vue';
 // import EditCRMCreateOrder from './EditCRMCreateOrder.vue';
 
@@ -14,6 +15,7 @@ export default function () {
   return {
     EditCRMGetCustomer,
     EditLogin,
+    EditIndependentProdOrder,
     // EditCRMUpdateCustomer,
     // EditCRMCreateOrder,
   };
