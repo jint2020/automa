@@ -16,11 +16,11 @@
       </ui-select>
 
       <!-- 账号密码登录 -->
-      <template v-if="data.loginMethod === 'account'">
+      <form v-if="data.loginMethod === 'account'" @submit.prevent>
         <ui-input
           :model-value="data.username"
           label="用户名"
-          placeholder="输入用户名，支持 {{ variable }}"
+          placeholder="输入crm登陆账号"
           class="mb-2"
           @change="updateData({ username: $event })"
         />
@@ -28,12 +28,12 @@
         <ui-input
           :model-value="data.password"
           label="密码"
-          placeholder="输入密码，支持 {{ variable }}"
+          placeholder="输入密码"
           type="password"
           class="mb-2"
           @change="updateData({ password: $event })"
         />
-      </template>
+      </form>
 
       <!-- 岗位名称 -->
       <ui-input

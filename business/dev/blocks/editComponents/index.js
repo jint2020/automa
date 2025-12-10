@@ -3,20 +3,16 @@
  * @Author: Jin Tang
  * @Date: 2025-11-25 17:58:34
  * @LastEditors: Jin Tang
- * @LastEditTime: 2025-11-26 11:37:55
+ * @LastEditTime: 2025-12-10 17:54:45
  */
-import EditCRMGetCustomer from './EditCRMGetCustomer.vue';
-import EditLogin from './EditLogin.vue';
-import EditIndependentProdOrder from './EditIndependentProdOrder.vue';
-// import EditCRMUpdateCustomer from './EditCRMUpdateCustomer.vue';
-// import EditCRMCreateOrder from './EditCRMCreateOrder.vue';
+import EditCRMGetCustomer from './EditCRMGetCustomer/index.vue';
+import EditLogin from './EditLogin/index.vue';
+import EditIndependentProdOrder from './EditIndependentProdOrder/index.vue';
 
 export default function () {
   return {
     EditCRMGetCustomer,
     EditLogin,
     EditIndependentProdOrder,
-    // EditCRMUpdateCustomer,
-    // EditCRMCreateOrder,
   };
 }

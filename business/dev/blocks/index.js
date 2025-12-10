@@ -3,95 +3,19 @@
  * @Author: Jin Tang
  * @Date: 2025-11-25 17:58:34
  * @LastEditors: Jin Tang
- * @LastEditTime: 2025-12-09 15:02:44
+ * @LastEditTime: 2025-12-10 18:02:23
  */
+import crmGetCustomerBlocks from './editComponents/EditCRMGetCustomer/index';
+import loginBlocks from './editComponents/EditLogin/index';
+import independentProdOrderBlocks from './editComponents/EditIndependentProdOrder/index';
+
 export default function () {
   return {
-    // 登录处理块
-    login: {
-      name: '登录处理',
-      description: '处理登录参数和登录返回结果',
-      icon: 'riLoginBoxLine',
-      component: 'BlockBasic',
-      editComponent: 'EditLogin',
-      category: 'integration',
-      inputs: 1,
-      outputs: 1,
-      maxConnection: 1,
-      allowedInputs: true,
-      autocomplete: ['variableName'],
-      data: {
-        disableBlock: false,
-        description: '',
-        // 登录方式
-        loginMethod: 'account', // account | cookie
-        // 账号密码登录参数
-        username: '',
-        password: '',
-        // 岗位名称
-        position: '订单支撑岗',
-        // 模拟返回数据（用于测试）
-        mockResponse: true,
-        mockToken: 'mock_token_123456',
-        mockUserInfo:
-          '{"userId": "001", "userName": "测试用户", "role": "admin"}',
-        // 变量赋值
-        assignVariable: true,
-        variableName: 'loginResult',
-      },
-    },
-
-    // CRM客户查询块
-    'crm-get-customer': {
-      name: 'CRM - 查询客户',
-      description: '从企业CRM系统查询客户信息',
-      icon: 'riAccountCircleLine',
-      component: 'BlockBasic',
-      editComponent: 'EditCRMGetCustomer',
-      category: 'integration',
-      inputs: 1,
-      outputs: 1,
-      maxConnection: 1,
-      allowedInputs: true,
-      autocomplete: ['variableName'],
-      data: {
-        disableBlock: false,
-        description: '',
-        queryType: 'accessNumber',
-        queryValue: '',
-        assignVariable: true,
-        variableName: '',
-      },
-    },
-
-    // 独立销售品订购块
-    'independent-prod-order': {
-      name: '独立销售品订购',
-      description: '在广东电信CRM系统中自动完成独立销售品的订购流程',
-      icon: 'riShoppingCartLine',
-      component: 'BlockBasic',
-      editComponent: 'EditIndependentProdOrder',
-      category: 'integration',
-      inputs: 1,
-      outputs: 1,
-      maxConnection: 1,
-      allowedInputs: true,
-      data: {
-        disableBlock: false,
-        description: '',
-        isZtSource: false,
-        skipCurrentProcess: false,
-        skipValidation: true,
-        waitTimeout: 5,
-        productInfo: [
-          {
-            offerCode: '',
-            offerName: '',
-            check: [],
-            unCheck: [],
-          },
-        ],
-      },
-    },
+    // 导入 CRM 客户查询相关的块定义
+    ...crmGetCustomerBlocks,
+    // 导入登录处理相关的块定义
+    ...loginBlocks,
+    // 导入独立销售品订购相关的块定义
+    ...independentProdOrderBlocks,
   };
 }
