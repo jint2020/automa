@@ -330,6 +330,7 @@ import WorkflowEditBlock from '@/components/newtab/workflow/WorkflowEditBlock.vu
 import WorkflowEditor from '@/components/newtab/workflow/WorkflowEditor.vue';
 import WorkflowGlobalData from '@/components/newtab/workflow/WorkflowGlobalData.vue';
 import WorkflowSettings from '@/components/newtab/workflow/WorkflowSettings.vue';
+import WorkflowVariables from '@/components/newtab/workflow/WorkflowVariables.vue';
 import WorkflowShare from '@/components/newtab/workflow/WorkflowShare.vue';
 import WorkflowShareTeam from '@/components/newtab/workflow/WorkflowShareTeam.vue';
 import { useCommandManager } from '@/composable/commandManager';
@@ -539,6 +540,12 @@ const workflowModals = {
     component: WorkflowGlobalData,
     title: t('common.globalData'),
     docs: 'https://docs.extension.automa.site/workflow/global-data.html',
+  },
+  variables: {
+    width: 'max-w-2xl',
+    icon: 'riBracketsLine',
+    component: WorkflowVariables,
+    title: t('common.variables'),
   },
   settings: {
     width: 'max-w-2xl',

@@ -305,7 +305,48 @@
     "variables": {
       "title": "Variable | Variables",
       "name": "Variable name",
-      "assign": "Assign to variable"
+      "assign": "Assign to variable",
+      "clickToCopy": "Click to copy variable name",
+      "copyRef": "Copy reference syntax",
+      "copied": "Copied \"{name}\" to clipboard",
+      "copiedRef": "Reference syntax copied to clipboard",
+      "global": "Global",
+      "source": "Source",
+      "clickToLocate": "Click to locate in editor",
+      "empty": "No variables defined",
+      "emptyHint": "Use 'Insert Data' block to create variables",
+      "comingSoon": "Coming soon",
+      "types": {
+        "variables": "Variables",
+        "loopData": "Loop Data",
+        "table": "Table",
+        "globalData": "Global Data"
+      },
+      "sources": {
+        "storage": "Storage",
+        "contextMenu": "Context Menu Trigger"
+      },
+      "usage": {
+        "title": "How to use variables",
+        "access": "Access variable",
+        "altSyntax": "Alternative syntax",
+        "nested": "Nested access"
+      },
+      "groups": {
+        "global": "Global Variables",
+        "triggerParams": "Trigger Parameters",
+        "contextMenu": "Context Menu Variables",
+        "insertData": "Insert Data Variables",
+        "blockOutput": "Block Output Variables",
+        "other": "Other Variables"
+      },
+      "ctxDesc": {
+        "elSelector": "CSS selector of the element",
+        "textSelection": "Selected text on the page",
+        "link": "Link URL if clicked on a link",
+        "mediaUrl": "Media URL (image/video/audio)"
+      },
+      "defaultValue": "Default"
     },
     "protect": {
       "title": "Protect workflow",

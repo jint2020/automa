@@ -305,7 +305,48 @@
     "variables": {
       "title": "变量 | 变量",
       "name": "变量名称",
-      "assign": "分配给变量"
+      "assign": "分配给变量",
+      "clickToCopy": "点击复制变量名",
+      "copyRef": "复制引用语法",
+      "copied": "已复制 \"{name}\" 到剪贴板",
+      "copiedRef": "引用语法已复制到剪贴板",
+      "global": "全局",
+      "source": "来源",
+      "clickToLocate": "点击定位到编辑器",
+      "empty": "暂无定义的变量",
+      "emptyHint": "使用「插入数据」块来创建变量",
+      "comingSoon": "即将推出",
+      "types": {
+        "variables": "变量",
+        "loopData": "循环数据",
+        "table": "表格",
+        "globalData": "全局数据"
+      },
+      "sources": {
+        "storage": "存储",
+        "contextMenu": "右键菜单触发器"
+      },
+      "usage": {
+        "title": "变量使用方法",
+        "access": "访问变量",
+        "altSyntax": "替代语法",
+        "nested": "嵌套访问"
+      },
+      "groups": {
+        "global": "全局变量",
+        "triggerParams": "触发器参数",
+        "contextMenu": "右键菜单变量",
+        "insertData": "插入数据变量",
+        "blockOutput": "块输出变量",
+        "other": "其他变量"
+      },
+      "ctxDesc": {
+        "elSelector": "元素的 CSS 选择器",
+        "textSelection": "页面选中的文本",
+        "link": "链接 URL（点击链接时）",
+        "mediaUrl": "媒体 URL（图片/视频/音频）"
+      },
+      "defaultValue": "默认值"
     },
     "protect": {
       "title": "保护工作流",

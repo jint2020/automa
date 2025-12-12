@@ -35,6 +35,7 @@
     "editor": "Editor",
     "running": "Running",
     "globalData": "Global data",
+    "variables": "Variables",
     "fileName": "File name",
     "description": "Description",
     "disable": "Disable",

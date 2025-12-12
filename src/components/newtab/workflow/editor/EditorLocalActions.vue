@@ -803,6 +803,11 @@ const modalActions = [
     icon: 'riDatabase2Line',
   },
   {
+    id: 'variables',
+    name: t('common.variables'),
+    icon: 'riBracketsLine',
+  },
+  {
     id: 'settings',
     name: t('common.settings'),
     icon: 'riSettings3Line',
