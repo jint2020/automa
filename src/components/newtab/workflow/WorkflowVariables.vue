@@ -117,7 +117,7 @@
                         v-if="item.sourceBlock"
                         class="mt-1 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"
                       >
-                        <v-remixicon name="riNodeTree" size="12" />
+                        <v-remixicon name="riMapPinLine" size="12" />
                         {{ t('workflow.variables.source') }}:
                         <span
                           class="cursor-pointer rounded bg-orange-100 px-1.5 py-0.5 text-orange-700 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800"
