@@ -157,7 +157,7 @@
           :can-edit="haveEditAccess"
           @update="onActionUpdated"
           @permission="checkWorkflowPermission"
-          @modal="(modalState.name = $event), (modalState.show = true)"
+          @modal="handleModalAction"
         />
       </div>
       <ui-tab-panels
@@ -269,6 +269,39 @@
         </ui-tab-panel>
       </ui-tab-panels>
     </div>
+    <!-- Variables Right Panel -->
+    <!-- Backdrop for closing panel on outside click -->
+    <div
+      v-if="variablesPanelOpen"
+      class="fixed inset-0 top-10 z-30"
+      @click="variablesPanelOpen = false"
+    />
+    <transition name="slide-right">
+      <div
+        v-if="variablesPanelOpen"
+        class="variables-panel fixed right-0 top-10 z-40 h-[calc(100vh-40px)] w-96 border-l border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800"
+      >
+        <div class="flex h-full flex-col">
+          <div
+            class="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-700"
+          >
+            <div class="flex items-center gap-2">
+              <v-remixicon name="riBracketsLine" size="20" />
+              <span class="font-semibold">{{ t('common.variables') }}</span>
+            </div>
+            <button
+              class="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+              @click="variablesPanelOpen = false"
+            >
+              <v-remixicon name="riCloseLine" size="20" />
+            </button>
+          </div>
+          <div class="flex-1 overflow-auto p-4">
+            <workflow-variables :workflow="workflow" />
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
   <ui-modal
     v-model="modalState.show"
@@ -472,6 +505,7 @@ const editState = reactive({
   blockData: {},
   editing: false,
 });
+const variablesPanelOpen = ref(false);
 const autocompleteState = reactive({
   blocks: {},
   common: {},
@@ -541,12 +575,7 @@ const workflowModals = {
     title: t('common.globalData'),
     docs: 'https://docs.extension.automa.site/workflow/global-data.html',
   },
-  variables: {
-    width: 'max-w-2xl',
-    icon: 'riBracketsLine',
-    component: WorkflowVariables,
-    title: t('common.variables'),
-  },
+  // variables: handled by variablesPanelOpen (right drawer panel)
   settings: {
     width: 'max-w-2xl',
     icon: 'riSettings3Line',
@@ -1246,6 +1275,15 @@ async function updateWorkflow(data) {
     console.error(error);
   }
 }
+function handleModalAction(modalName) {
+  if (modalName === 'variables') {
+    // Toggle variables panel instead of opening modal
+    variablesPanelOpen.value = !variablesPanelOpen.value;
+  } else {
+    modalState.name = modalName;
+    modalState.show = true;
+  }
+}
 function onActionUpdated({ data, changedIndicator }) {
   state.dataChanged = changedIndicator;
 
@@ -1780,5 +1818,18 @@ onBeforeUnmount(() => {
 .custom-drag:hover {
   cursor: col-resize;
   opacity: 1;
+}
+
+/* Variables panel slide-right transition */
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: transform 0.3s ease;
+}
+.slide-right-enter-from,
+.slide-right-leave-to {
+  transform: translateX(100%);
+}
+.variables-panel {
+  will-change: transform;
 }
 </style>

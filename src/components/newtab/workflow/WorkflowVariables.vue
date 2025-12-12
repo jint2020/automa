@@ -14,9 +14,9 @@
     </ui-tabs>
 
     <!-- Tab Content -->
-    <div class="tab-content" style="height: calc(100vh - 16rem)">
+    <div class="tab-content flex-1">
       <!-- Variables Tab -->
-      <div v-if="activeTab === 'variables'" class="h-full overflow-auto">
+      <div v-if="activeTab === 'variables'" class="h-full">
         <!-- Usage Guide -->
         <div
           class="mb-4 rounded-lg bg-blue-50 p-3 text-sm dark:bg-blue-900 dark:bg-opacity-20"
@@ -486,7 +486,9 @@ function locateBlock(nodeId) {
 
 <style scoped>
 .workflow-variables {
-  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 code {
