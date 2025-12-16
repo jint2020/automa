@@ -14,10 +14,11 @@ export default {
     data: {
       disableBlock: false,
       description: '',
-      isZtSource: false,
-      skipCurrentProcess: false,
-      skipValidation: true,
-      waitTimeout: 5,
+      // isZtSource: false,
+      // skipCurrentProcess: false,
+      // skipValidation: true,
+      // 没有订购标识跳过当前流程
+      skikNoOrderFlag: false,
       productInfo: [
         {
           offerCode: '',

@@ -1,3 +1,10 @@
+/*
+ * @Description:
+ * @Author: Jin Tang
+ * @Date: 2025-12-10 17:59:25
+ * @LastEditors: Jin Tang
+ * @LastEditTime: 2025-12-15 11:22:05
+ */
 export default {
   // 登录处理块
   login: {
@@ -21,11 +28,6 @@ export default {
       password: '',
       // 岗位名称
       position: '订单支撑岗',
-      // 模拟返回数据（用于测试）
-      mockResponse: true,
-      mockToken: 'mock_token_123456',
-      mockUserInfo:
-        '{"userId": "001", "userName": "测试用户", "role": "admin"}',
       // 变量赋值
       assignVariable: true,
       variableName: 'loginResult',

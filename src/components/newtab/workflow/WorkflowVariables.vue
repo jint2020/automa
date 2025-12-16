@@ -28,19 +28,19 @@
             class="list-inside list-disc space-y-1 text-blue-700 dark:text-blue-400"
           >
             <li>
-              {{ t('workflow.variables.usage.access') }}:
+              访问变量:
               <code class="rounded bg-blue-100 px-1 dark:bg-blue-800">
                 {{ usageExamples.access }}
               </code>
             </li>
             <li>
-              {{ t('workflow.variables.usage.altSyntax') }}:
+              访问变量:
               <code class="rounded bg-blue-100 px-1 dark:bg-blue-800">
                 {{ usageExamples.altSyntax }}
               </code>
             </li>
             <li>
-              {{ t('workflow.variables.usage.nested') }}:
+              嵌套访问:
               <code class="rounded bg-blue-100 px-1 dark:bg-blue-800">
                 {{ usageExamples.nested }}
               </code>

@@ -5,37 +5,12 @@
       <p class="font-semibold mb-2">基础配置</p>
 
       <ui-checkbox
-        :model-value="data.isZtSource"
+        :model-value="data.skikNoOrderFlag"
         class="mb-2"
-        @change="updateData({ isZtSource: $event })"
+        @change="updateData({ skikNoOrderFlag: $event })"
       >
-        中台来源数据（自动跳过黄金/白金会员）
+        没有订购标识跳过当前流程
       </ui-checkbox>
-
-      <ui-checkbox
-        :model-value="data.skipCurrentProcess"
-        class="mb-2"
-        @change="updateData({ skipCurrentProcess: $event })"
-      >
-        跳过当前流程（处理业务提示弹窗）
-      </ui-checkbox>
-
-      <ui-checkbox
-        :model-value="data.skipValidation"
-        class="mb-2"
-        @change="updateData({ skipValidation: $event })"
-      >
-        跳过校验
-      </ui-checkbox>
-
-      <ui-input
-        :model-value="data.waitTimeout"
-        label="等待超时时间（秒）"
-        type="number"
-        placeholder="5"
-        class="mb-2"
-        @change="updateData({ waitTimeout: +$event })"
-      />
     </ui-card>
 
     <!-- 销售品配置 -->
@@ -81,20 +56,79 @@
           @change="updateProduct(index, 'offerName', $event)"
         />
 
-        <ui-textarea
-          :model-value="formatArray(product.check)"
-          label="需要勾选的可选包（每行一个）"
-          placeholder="流量加油包&#10;语音优惠包"
-          class="mb-2"
-          @change="updateProduct(index, 'check', parseArray($event))"
-        />
+        <!-- 勾选数组 -->
+        <div class="mb-3">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium">勾选</span>
+            <ui-button size="small" @click="addCheckItem(index)">
+              <v-remixicon name="riAddLine" class="mr-1" />
+            </ui-button>
+          </div>
 
-        <ui-textarea
-          :model-value="formatArray(product.unCheck)"
-          label="需要取消勾选的可选包（每行一个）"
-          placeholder="国际漫游"
-          @change="updateProduct(index, 'unCheck', parseArray($event))"
-        />
+          <div
+            v-for="(checkItem, checkIndex) in product.check"
+            :key="'check-' + index + '-' + checkIndex"
+            class="flex items-center gap-2 mb-2"
+          >
+            <ui-input
+              :model-value="checkItem"
+              placeholder="请输入勾选项目"
+              class="flex-1"
+              @change="updateCheckItem(index, checkIndex, $event)"
+            />
+            <ui-button
+              size="small"
+              variant="danger"
+              @click="removeCheckItem(index, checkIndex)"
+            >
+              <v-remixicon name="riDeleteBinLine" />
+            </ui-button>
+          </div>
+
+          <p
+            v-if="product.check.length === 0"
+            class="text-gray-500 text-sm ml-2"
+          >
+            暂无勾选项目
+          </p>
+        </div>
+
+        <!-- 取消勾选数组 -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium">不勾选</span>
+            <ui-button size="small" @click="addUncheckItem(index)">
+              <v-remixicon name="riAddLine" class="mr-1" />
+            </ui-button>
+          </div>
+
+          <div
+            v-for="(uncheckItem, uncheckIndex) in product.unCheck"
+            :key="'uncheck-' + index + '-' + uncheckIndex"
+            class="flex items-center gap-2 mb-2"
+          >
+            <ui-input
+              :model-value="uncheckItem"
+              placeholder="请输入取消勾选项目"
+              class="flex-1"
+              @change="updateUncheckItem(index, uncheckIndex, $event)"
+            />
+            <ui-button
+              size="small"
+              variant="danger"
+              @click="removeUncheckItem(index, uncheckIndex)"
+            >
+              <v-remixicon name="riDeleteBinLine" />
+            </ui-button>
+          </div>
+
+          <p
+            v-if="product.unCheck.length === 0"
+            class="text-gray-500 text-sm ml-2"
+          >
+            暂无取消勾选项目
+          </p>
+        </div>
       </div>
 
       <p v-if="data.productInfo.length === 0" class="text-gray-500 text-sm">
@@ -156,18 +190,41 @@ function updateProduct(index, field, value) {
   updateData({ productInfo: newProductInfo });
 }
 
-// 格式化数组为字符串（每行一个）
-function formatArray(arr) {
-  if (!Array.isArray(arr)) return '';
-  return arr.join('\n');
+// 勾选数组操作
+function addCheckItem(productIndex) {
+  const newProductInfo = [...props.data.productInfo];
+  newProductInfo[productIndex].check.push('');
+  updateData({ productInfo: newProductInfo });
 }
 
-// 解析字符串为数组（每行一个）
-function parseArray(str) {
-  if (!str || typeof str !== 'string') return [];
-  return str
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
+function removeCheckItem(productIndex, checkIndex) {
+  const newProductInfo = [...props.data.productInfo];
+  newProductInfo[productIndex].check.splice(checkIndex, 1);
+  updateData({ productInfo: newProductInfo });
+}
+
+function updateCheckItem(productIndex, checkIndex, value) {
+  const newProductInfo = [...props.data.productInfo];
+  newProductInfo[productIndex].check[checkIndex] = value;
+  updateData({ productInfo: newProductInfo });
+}
+
+// 取消勾选数组操作
+function addUncheckItem(productIndex) {
+  const newProductInfo = [...props.data.productInfo];
+  newProductInfo[productIndex].unCheck.push('');
+  updateData({ productInfo: newProductInfo });
+}
+
+function removeUncheckItem(productIndex, uncheckIndex) {
+  const newProductInfo = [...props.data.productInfo];
+  newProductInfo[productIndex].unCheck.splice(uncheckIndex, 1);
+  updateData({ productInfo: newProductInfo });
+}
+
+function updateUncheckItem(productIndex, uncheckIndex, value) {
+  const newProductInfo = [...props.data.productInfo];
+  newProductInfo[productIndex].unCheck[uncheckIndex] = value;
+  updateData({ productInfo: newProductInfo });
 }
 </script>

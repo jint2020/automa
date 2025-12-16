@@ -1,3 +1,10 @@
+<!--
+ * @Description:
+ * @Author: Jin Tang
+ * @Date: 2025-12-10 16:37:31
+ * @LastEditors: Jin Tang
+ * @LastEditTime: 2025-12-15 11:21:26
+-->
 <template>
   <div class="edit-login">
     <!-- 登录参数配置 -->
@@ -43,36 +50,6 @@
         class="mb-2"
         @change="updateData({ position: $event })"
       />
-    </ui-card>
-
-    <!-- 模拟响应配置 -->
-    <ui-card class="mb-4">
-      <p class="font-semibold mb-2">模拟响应</p>
-
-      <ui-checkbox
-        :model-value="data.mockResponse"
-        class="mb-2"
-        @change="updateData({ mockResponse: $event })"
-      >
-        启用模拟响应（测试用）
-      </ui-checkbox>
-
-      <template v-if="data.mockResponse">
-        <ui-input
-          :model-value="data.mockToken"
-          label="模拟 Token"
-          placeholder="mock_token_123456"
-          class="mb-2"
-          @change="updateData({ mockToken: $event })"
-        />
-
-        <ui-textarea
-          :model-value="data.mockUserInfo"
-          label="模拟用户信息 (JSON)"
-          placeholder='{"userId": "001", "userName": "测试用户"}'
-          @change="updateData({ mockUserInfo: $event })"
-        />
-      </template>
     </ui-card>
 
     <hr />
