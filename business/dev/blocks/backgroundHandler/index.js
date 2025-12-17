@@ -10,6 +10,7 @@ import handlerLogin from './handlerLogin';
 import handlerIndependentProdOrder from './handlerIndependentProdOrder';
 import handleCRMAgent from './handleCRMAgent';
 import handleMoreProdConfig from './handleMoreProdConfig';
+import handleProdInfo from './handleProdInfo';
 
 export default function () {
   return {
@@ -18,5 +19,6 @@ export default function () {
     ...handlerIndependentProdOrder(),
     ...handleCRMAgent(),
     ...handleMoreProdConfig(),
+    ...handleProdInfo(),
   };
 }
