@@ -8,7 +8,7 @@
         :model-value="data.queryType"
         label="查询类型"
         placeholder="请选择查询类型"
-        class="mb-2"
+        class="mb-2 w-full"
         @change="updateData({ queryType: $event })"
       >
         <option v-for="item in qType" :key="item.value" :value="item.value">
@@ -16,12 +16,14 @@
         </option>
       </ui-select>
 
-      <ui-input
-        :model-value="data.queryValue"
-        label="查询值"
-        placeholder="输入查询值，支持 {{ variable }}"
-        @change="updateData({ queryValue: $event })"
-      />
+      <edit-autocomplete class="mb-1 w-full">
+        <ui-input
+          :model-value="data.queryValue"
+          label="查询值"
+          placeholder="输入查询值，支持 {{ variable }}"
+          @change="updateData({ queryValue: $event })"
+        />
+      </edit-autocomplete>
     </ui-card>
 
     <hr />
@@ -33,6 +35,7 @@
 
 <script setup>
 import InsertWorkflowData from '@/components/newtab/workflow/edit/InsertWorkflowData.vue';
+import EditAutocomplete from '@/components/newtab/workflow/edit/EditAutocomplete.vue';
 
 const props = defineProps({
   data: {

@@ -19,7 +19,7 @@ export default {
     outputs: 1,
     maxConnection: 1,
     allowedInputs: true,
-    autocomplete: ['variableName'],
+    autocomplete: ['variableName', 'queryValue'],
     data: {
       disableBlock: false,
       description: '',
