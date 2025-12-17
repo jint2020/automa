@@ -28,8 +28,7 @@
       :block-id="data.blockId"
       v-bind="{
         fullData: data.id === 'conditions' ? data : null,
-        editor:
-          data.id === 'conditions' || data.id === 'crm-agent' ? editor : null,
+        editor: data.id === 'conditions' ? editor : null,
         connections: data.id === 'wait-connections' ? data.connections : null,
       }"
     />
@@ -47,7 +46,10 @@ const editComponents = import.meta.glob('./edit/Edit*.vue', { eager: true });
 const components = Object.keys(editComponents).reduce((acc, path) => {
   // Extract component name from path
   // Path format: ./edit/EditClick.vue
-  const name = path.split('/').pop().replace(/\.vue$/, '');
+  const name = path
+    .split('/')
+    .pop()
+    .replace(/\.vue$/, '');
   const componentObj = editComponents[path]?.default ?? {};
 
   acc[name] = componentObj;

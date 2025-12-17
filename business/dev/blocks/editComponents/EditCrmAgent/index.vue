@@ -155,10 +155,10 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
-  editor: {
-    type: Object,
-    default: () => ({}),
-  },
+  // editor: {
+  //   type: Object,
+  //   default: () => ({}),
+  // },
 });
 
 const emit = defineEmits(['update:data']);
@@ -168,88 +168,65 @@ function updateData(value) {
 }
 
 // 生成唯一ID
-function generateId() {
-  return `param-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-}
+// function generateId() {
+//   return `param-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+// }
 
 // 查找并更新 trigger block
-function updateTriggerParameters(fieldName, checked) {
-  // console.log('[CRM Agent] updateTriggerParameters called', {
-  //   fieldName,
-  //   checked,
-  //   hasEditor: !!props.editor,
-  //   hasGetNodes: !!(props.editor && props.editor.getNodes),
-  // });
+// function updateTriggerParameters(fieldName, checked) {
+//   if (!props.editor || !props.editor.getNodes) {
+//     console.warn('[CRM Agent] Editor or getNodes not available');
+//     return;
+//   }
 
-  if (!props.editor || !props.editor.getNodes) {
-    console.warn('[CRM Agent] Editor or getNodes not available');
-    return;
-  }
+//   // 查找 trigger block
+//   const allNodes = props.editor.getNodes.value;
 
-  // 查找 trigger block
-  const allNodes = props.editor.getNodes.value;
-  // console.log('[CRM Agent] All nodes:', allNodes);
-  // console.log(
-  //   '[CRM Agent] Node IDs:',
-  //   allNodes.map((n) => ({ id: n.id, label: n.label, dataId: n.data?.id }))
-  // );
+//   const triggerNode = allNodes.find((node) => node.label === 'trigger');
 
-  const triggerNode = allNodes.find((node) => node.label === 'trigger');
+//   if (!triggerNode) {
+//     return;
+//   }
 
-  // console.log('[CRM Agent] Trigger node found:', triggerNode);
+//   // 确定正确的数据路径
+//   const triggerData = triggerNode.data?.data || triggerNode.data;
+//   if (!triggerData) {
+//     console.warn('[CRM Agent] Trigger data not found');
+//     return;
+//   }
 
-  if (!triggerNode) {
-    // console.warn('[CRM Agent] Trigger block not found');
-    return;
-  }
+//   // 初始化 parameters 如果不存在
+//   if (!triggerData.parameters) {
+//     triggerData.parameters = [];
+//   }
 
-  // 打印 trigger node 的完整数据结构
-  // console.log('[CRM Agent] Trigger node.data:', triggerNode.data);
-  // console.log('[CRM Agent] Trigger node.data.data:', triggerNode.data?.data);
+//   const currentParameters = triggerData.parameters || [];
+//   // console.log('[CRM Agent] Current parameters:', currentParameters);
 
-  // 确定正确的数据路径
-  const triggerData = triggerNode.data?.data || triggerNode.data;
-  if (!triggerData) {
-    console.warn('[CRM Agent] Trigger data not found');
-    return;
-  }
-
-  // 初始化 parameters 如果不存在
-  if (!triggerData.parameters) {
-    triggerData.parameters = [];
-  }
-
-  const currentParameters = triggerData.parameters || [];
-  // console.log('[CRM Agent] Current parameters:', currentParameters);
-
-  if (checked) {
-    // 勾选：添加参数到 trigger 的 parameters 数组（如果不存在）
-    const existingParam = currentParameters.find((p) => p.name === fieldName);
-    if (!existingParam) {
-      const newParameter = {
-        id: generateId(),
-        data: {
-          required: true,
-        },
-        name: fieldName,
-        type: 'json',
-        description: '',
-        placeholder: 'Text',
-        defaultValue: `{{variables.${fieldName}}}`,
-      };
-      triggerData.parameters = [...currentParameters, newParameter];
-      // console.log('[CRM Agent] Parameter added:', triggerData.parameters);
-    } else {
-      // console.log('[CRM Agent] Parameter already exists:', fieldName);
-    }
-  } else {
-    // 取消勾选：从 trigger 的 parameters 数组中移除
-    triggerData.parameters = currentParameters.filter(
-      (p) => p.name !== fieldName
-    );
-    // console.log('[CRM Agent] Parameter removed:', triggerData.parameters);
-  }
-}
+//   if (checked) {
+//     // 勾选：添加参数到 trigger 的 parameters 数组（如果不存在）
+//     const existingParam = currentParameters.find((p) => p.name === fieldName);
+//     if (!existingParam) {
+//       const newParameter = {
+//         id: generateId(),
+//         data: {
+//           required: true,
+//         },
+//         name: fieldName,
+//         type: 'json',
+//         description: '',
+//         placeholder: 'Text',
+//         defaultValue: `{{variables.${fieldName}}}`,
+//       };
+//       triggerData.parameters = [...currentParameters, newParameter];
+//     }
+//   } else {
+//     // 取消勾选：从 trigger 的 parameters 数组中移除
+//     triggerData.parameters = currentParameters.filter(
+//       (p) => p.name !== fieldName
+//     );
+//   }
+// }
 
 // 处理checkbox变更，将勾选转换为变量模板字符串
 function handleCheckboxChange(fieldName, checked) {
@@ -259,6 +236,6 @@ function handleCheckboxChange(fieldName, checked) {
   updateData({ [fieldName]: value });
 
   // 同步更新 trigger block 的 parameters 数组
-  updateTriggerParameters(fieldName, checked);
+  // updateTriggerParameters(fieldName, checked);
 }
 </script>
