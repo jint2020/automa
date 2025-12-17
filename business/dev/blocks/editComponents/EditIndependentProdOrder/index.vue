@@ -17,10 +17,10 @@
     <ui-card class="mb-4">
       <div class="flex items-center justify-between mb-2">
         <p class="font-semibold">销售品配置</p>
-        <ui-button size="small" @click="addProduct">
+        <!-- <ui-button size="small" @click="addProduct">
           <v-remixicon name="riAddLine" class="mr-1" />
           添加销售品
-        </ui-button>
+        </ui-button> -->
       </div>
 
       <div
@@ -29,14 +29,13 @@
         class="border rounded-lg p-3 mb-3"
       >
         <div class="flex items-center justify-between mb-2">
-          <span class="text-sm font-medium">销售品 {{ index + 1 }}</span>
+          <span class="font-medium text-gray-700">销售品 {{ index + 1 }}</span>
           <ui-button
             v-if="data.productInfo.length > 1"
             size="small"
-            variant="danger"
             @click="removeProduct(index)"
           >
-            <v-remixicon name="riDeleteBinLine" />
+            <v-remixicon name="riDeleteBin7Line" />
           </ui-button>
         </div>
 
@@ -134,6 +133,10 @@
       <p v-if="data.productInfo.length === 0" class="text-gray-500 text-sm">
         暂无销售品配置，请点击"添加销售品"按钮
       </p>
+      <ui-button class="w-full" variant="accent" @click="addProduct">
+        <v-remixicon name="riAddLine" class="mr-1 -ml-1" />
+        增加销售品配置
+      </ui-button>
     </ui-card>
 
     <hr />

@@ -3,7 +3,7 @@
  * @Author: Jin Tang
  * @Date: 2025-12-16 17:37:44
  * @LastEditors: Jin Tang
- * @LastEditTime: 2025-12-17 10:21:23
+ * @LastEditTime: 2025-12-17 11:53:56
  */
 export default {
   // TODO crm经办人
@@ -22,22 +22,19 @@ export default {
     data: {
       disableBlock: false,
       description: '',
-      // TODO crm经办人参数
-      linkMan: false,
-      linkPhone: false,
-      handlerFindType: false,
-      handlerFindValue: false,
-      handlerType: false,
-      carryManFindType: false,
-      carryManFindValue: false,
-      isHandlerCarryMan: false,
-      carryManFindValue1: false,
-      carryManFindType1: false,
-      carryManFindValue2: false,
-      carryManFindType2: false,
-      // orderRemark: false,
-      // bookTime: false,
-      // convertToZeroSignalControl: true,
+      // TODO crm经办人参数 (undefined 表示未启用字段)
+      handlerNoassociationParameter: undefined,
+      handlerYxdassociationParameter: undefined,
+      carryManCode: undefined,
+      firstCoSellerCode: undefined,
+      secondCoSellerCode: undefined,
+      custName: undefined,
+      custPhone: undefined,
+      isSelfHandlerassociationParameter: undefined,
+      convertedToZeroSignalControlUser: undefined,
+      bookTimeassociationParameter: undefined,
+      bookRefuseReasonassociationParameter: undefined,
+      orderRemark: undefined,
       // ======================
       // assignVariable: true,
       // variableName: '',

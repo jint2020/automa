@@ -3,12 +3,13 @@
  * @Author: Jin Tang
  * @Date: 2025-11-25 17:58:34
  * @LastEditors: Jin Tang
- * @LastEditTime: 2025-12-16 17:52:34
+ * @LastEditTime: 2025-12-17 15:21:50
  */
 import EditCRMGetCustomer from './EditCRMGetCustomer/index.vue';
 import EditLogin from './EditLogin/index.vue';
 import EditIndependentProdOrder from './EditIndependentProdOrder/index.vue';
 import EditCrmAgent from './EditCrmAgent/index.vue';
+import EditMoreProdConfig from './EditMoreProdConfig/index.vue';
 
 export default function () {
   return {
@@ -16,5 +17,6 @@ export default function () {
     EditLogin,
     EditIndependentProdOrder,
     EditCrmAgent,
+    EditMoreProdConfig,
   };
 }

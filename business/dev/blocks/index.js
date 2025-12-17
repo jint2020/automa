@@ -9,6 +9,7 @@ import crmGetCustomerBlocks from './editComponents/EditCRMGetCustomer/index';
 import loginBlocks from './editComponents/EditLogin/index';
 import independentProdOrderBlocks from './editComponents/EditIndependentProdOrder/index';
 import handleCRMAgent from './editComponents/EditCrmAgent/index';
+import moreProdConfig from './editComponents/EditMoreProdConfig/index';
 
 export default function () {
   return {
@@ -19,5 +20,6 @@ export default function () {
     // 导入独立销售品订购相关的块定义
     ...independentProdOrderBlocks,
     ...handleCRMAgent,
+    ...moreProdConfig,
   };
 }
