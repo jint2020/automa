@@ -2,14 +2,14 @@
   <div class="edit-crm-agent">
     <!-- 联系人信息 -->
     <ui-card class="mb-4">
-      <p class="font-semibold mb-2">联系人信息</p>
+      <p class="font-semibold mb-2">经办人信息</p>
 
       <ui-checkbox
         :model-value="!!data.linkMan"
         class="mb-2"
         @change="handleCheckboxChange('linkMan', $event)"
       >
-        联系人
+        联系人姓名
       </ui-checkbox>
 
       <ui-checkbox
@@ -30,7 +30,7 @@
         class="mb-2"
         @change="handleCheckboxChange('handlerFindType', $event)"
       >
-        经办人查找类型
+        经办人查询类型
       </ui-checkbox>
 
       <ui-checkbox
@@ -38,7 +38,7 @@
         class="mb-2"
         @change="handleCheckboxChange('handlerFindValue', $event)"
       >
-        经办人查找值
+        经办人查询值
       </ui-checkbox>
 
       <ui-checkbox
@@ -59,7 +59,7 @@
         class="mb-2"
         @change="handleCheckboxChange('isHandlerCarryMan', $event)"
       >
-        经办人即携带人
+        是否处理揽装人信息
       </ui-checkbox>
 
       <ui-checkbox
@@ -67,7 +67,7 @@
         class="mb-2"
         @change="handleCheckboxChange('carryManFindType', $event)"
       >
-        携带人查找类型
+        揽装人查询类型
       </ui-checkbox>
 
       <ui-checkbox
@@ -75,7 +75,7 @@
         class="mb-2"
         @change="handleCheckboxChange('carryManFindValue', $event)"
       >
-        携带人查找值
+        揽装人查询值
       </ui-checkbox>
 
       <ui-checkbox
@@ -83,7 +83,7 @@
         class="mb-2"
         @change="handleCheckboxChange('carryManFindType1', $event)"
       >
-        携带人查找类型1
+        第一协销人查询类型
       </ui-checkbox>
 
       <ui-checkbox
@@ -91,7 +91,7 @@
         class="mb-2"
         @change="handleCheckboxChange('carryManFindValue1', $event)"
       >
-        携带人查找值1
+        第一协销人查询值
       </ui-checkbox>
 
       <ui-checkbox
@@ -99,7 +99,7 @@
         class="mb-2"
         @change="handleCheckboxChange('carryManFindType2', $event)"
       >
-        携带人查找类型2
+        第二协销人查询类型
       </ui-checkbox>
 
       <ui-checkbox
@@ -107,11 +107,11 @@
         class="mb-2"
         @change="handleCheckboxChange('carryManFindValue2', $event)"
       >
-        携带人查找值2
+        第二协销人查询值
       </ui-checkbox>
     </ui-card>
 
-    <!-- 其他配置 -->
+    <!-- 其他配置
     <ui-card class="mb-4">
       <p class="font-semibold mb-2">其他配置</p>
 
@@ -138,20 +138,24 @@
       >
         转零信号控制
       </ui-checkbox>
-    </ui-card>
+    </ui-card> -->
 
-    <hr />
+    <!-- <hr /> -->
 
     <!-- 变量赋值 -->
-    <insert-workflow-data :data="data" variables @update="updateData" />
+    <!-- <insert-workflow-data :data="data" variables @update="updateData" /> -->
   </div>
 </template>
 
 <script setup>
-import InsertWorkflowData from '@/components/newtab/workflow/edit/InsertWorkflowData.vue';
+// import InsertWorkflowData from '@/components/newtab/workflow/edit/InsertWorkflowData.vue';
 
 const props = defineProps({
   data: {
+    type: Object,
+    default: () => ({}),
+  },
+  editor: {
     type: Object,
     default: () => ({}),
   },
@@ -163,9 +167,98 @@ function updateData(value) {
   emit('update:data', { ...props.data, ...value });
 }
 
+// 生成唯一ID
+function generateId() {
+  return `param-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// 查找并更新 trigger block
+function updateTriggerParameters(fieldName, checked) {
+  // console.log('[CRM Agent] updateTriggerParameters called', {
+  //   fieldName,
+  //   checked,
+  //   hasEditor: !!props.editor,
+  //   hasGetNodes: !!(props.editor && props.editor.getNodes),
+  // });
+
+  if (!props.editor || !props.editor.getNodes) {
+    console.warn('[CRM Agent] Editor or getNodes not available');
+    return;
+  }
+
+  // 查找 trigger block
+  const allNodes = props.editor.getNodes.value;
+  // console.log('[CRM Agent] All nodes:', allNodes);
+  // console.log(
+  //   '[CRM Agent] Node IDs:',
+  //   allNodes.map((n) => ({ id: n.id, label: n.label, dataId: n.data?.id }))
+  // );
+
+  const triggerNode = allNodes.find((node) => node.label === 'trigger');
+
+  // console.log('[CRM Agent] Trigger node found:', triggerNode);
+
+  if (!triggerNode) {
+    // console.warn('[CRM Agent] Trigger block not found');
+    return;
+  }
+
+  // 打印 trigger node 的完整数据结构
+  // console.log('[CRM Agent] Trigger node.data:', triggerNode.data);
+  // console.log('[CRM Agent] Trigger node.data.data:', triggerNode.data?.data);
+
+  // 确定正确的数据路径
+  const triggerData = triggerNode.data?.data || triggerNode.data;
+  if (!triggerData) {
+    console.warn('[CRM Agent] Trigger data not found');
+    return;
+  }
+
+  // 初始化 parameters 如果不存在
+  if (!triggerData.parameters) {
+    triggerData.parameters = [];
+  }
+
+  const currentParameters = triggerData.parameters || [];
+  // console.log('[CRM Agent] Current parameters:', currentParameters);
+
+  if (checked) {
+    // 勾选：添加参数到 trigger 的 parameters 数组（如果不存在）
+    const existingParam = currentParameters.find((p) => p.name === fieldName);
+    if (!existingParam) {
+      const newParameter = {
+        id: generateId(),
+        data: {
+          required: true,
+        },
+        name: fieldName,
+        type: 'json',
+        description: '',
+        placeholder: 'Text',
+        defaultValue: `{{variables.${fieldName}}}`,
+      };
+      triggerData.parameters = [...currentParameters, newParameter];
+      // console.log('[CRM Agent] Parameter added:', triggerData.parameters);
+    } else {
+      // console.log('[CRM Agent] Parameter already exists:', fieldName);
+    }
+  } else {
+    // 取消勾选：从 trigger 的 parameters 数组中移除
+    triggerData.parameters = currentParameters.filter(
+      (p) => p.name !== fieldName
+    );
+    // console.log('[CRM Agent] Parameter removed:', triggerData.parameters);
+  }
+}
+
 // 处理checkbox变更，将勾选转换为变量模板字符串
 function handleCheckboxChange(fieldName, checked) {
   const value = checked ? `{{variables.${fieldName}}}` : false;
+
+  // 更新字段值
   updateData({ [fieldName]: value });
+
+  // 同步更新 trigger block 的 parameters 数组
+  updateTriggerParameters(fieldName, checked);
 }
 </script>

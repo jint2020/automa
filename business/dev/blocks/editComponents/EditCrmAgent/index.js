@@ -3,14 +3,14 @@
  * @Author: Jin Tang
  * @Date: 2025-12-16 17:37:44
  * @LastEditors: Jin Tang
- * @LastEditTime: 2025-12-16 17:46:22
+ * @LastEditTime: 2025-12-17 10:21:23
  */
 export default {
   // TODO crm经办人
   'crm-agent': {
     name: 'CRM - 经办人',
     description: '经办人信息',
-    icon: '',
+    icon: 'riContactsLine',
     component: 'BlockBasic',
     editComponent: 'EditCrmAgent',
     category: 'integration',
@@ -18,7 +18,7 @@ export default {
     outputs: 1,
     maxConnection: 1,
     allowedInputs: true,
-    autocomplete: ['variableName'],
+    // autocomplete: ['variableName'],
     data: {
       disableBlock: false,
       description: '',
@@ -35,12 +35,12 @@ export default {
       carryManFindType1: false,
       carryManFindValue2: false,
       carryManFindType2: false,
-      orderRemark: false,
-      bookTime: false,
-      convertToZeroSignalControl: true,
+      // orderRemark: false,
+      // bookTime: false,
+      // convertToZeroSignalControl: true,
       // ======================
-      assignVariable: true,
-      variableName: '',
+      // assignVariable: true,
+      // variableName: '',
     },
   },
 };

@@ -28,7 +28,8 @@
       :block-id="data.blockId"
       v-bind="{
         fullData: data.id === 'conditions' ? data : null,
-        editor: data.id === 'conditions' ? editor : null,
+        editor:
+          data.id === 'conditions' || data.id === 'crm-agent' ? editor : null,
         connections: data.id === 'wait-connections' ? data.connections : null,
       }"
     />
