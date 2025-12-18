@@ -10,7 +10,10 @@ import loginBlocks from './editComponents/EditLogin/index';
 import independentProdOrderBlocks from './editComponents/EditIndependentProdOrder/index';
 import handleCRMAgent from './editComponents/EditCrmAgent/index';
 import moreProdConfig from './editComponents/EditMoreProdConfig/index';
-import prodInfo from './editComponents/EditProdInfo/index'
+import prodInfo from './editComponents/EditProdInfo/index';
+import telecomPackageSubscription from './editComponents/EditPackageSubscription/index';
+import telecomPackageOperate from './editComponents/EditPackageOperate/index';
+import telecomPreferenceSetParam from './editComponents/EditPreferenceSetParam/index';
 
 export default function () {
   return {
@@ -20,5 +23,8 @@ export default function () {
     ...handleCRMAgent,
     ...moreProdConfig,
     ...prodInfo,
+    ...telecomPackageSubscription,
+    ...telecomPackageOperate,
+    ...telecomPreferenceSetParam,
   };
 }

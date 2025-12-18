@@ -11,6 +11,9 @@ import handlerIndependentProdOrder from './handlerIndependentProdOrder';
 import handleCRMAgent from './handleCRMAgent';
 import handleMoreProdConfig from './handleMoreProdConfig';
 import handleProdInfo from './handleProdInfo';
+import handlerPreferenceSetParam from './handlerPreferenceSetParam';
+import handlerPackageOperate from './handlerPackageOperate';
+import handlerPackageSubscription from './handlerPackageSubscription';
 
 export default function () {
   return {
@@ -20,5 +23,8 @@ export default function () {
     ...handleCRMAgent(),
     ...handleMoreProdConfig(),
     ...handleProdInfo(),
+    ...handlerPreferenceSetParam(),
+    ...handlerPackageOperate(),
+    ...handlerPackageSubscription(),
   };
 }

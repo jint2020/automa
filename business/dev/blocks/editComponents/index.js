@@ -11,6 +11,9 @@ import EditIndependentProdOrder from './EditIndependentProdOrder/index.vue';
 import EditCrmAgent from './EditCrmAgent/index.vue';
 import EditMoreProdConfig from './EditMoreProdConfig/index.vue';
 import EditProdInfo from './EditProdInfo/index.vue';
+import EditPackageSubscription from './EditPackageSubscription/index.vue';
+import EditPackageOperate from './EditPackageOperate/index.vue';
+import EditPreferenceSetParam from './EditPreferenceSetParam/index.vue';
 
 export default function () {
   return {
@@ -20,5 +23,8 @@ export default function () {
     EditCrmAgent,
     EditMoreProdConfig,
     EditProdInfo,
+    EditPackageSubscription,
+    EditPackageOperate,
+    EditPreferenceSetParam,
   };
 }
