@@ -1,3 +1,10 @@
+/*
+ * @Description: 
+ * @Author: Jin Tang
+ * @Date: 2025-12-10 17:59:20
+ * @LastEditors: Jin Tang
+ * @LastEditTime: 2025-12-18 16:19:14
+ */
 export default {
   // 独立销售品订购块
   'independent-prod-order': {
@@ -22,7 +29,6 @@ export default {
       productInfo: [
         {
           offerCode: '',
-          offerName: '',
           check: [],
           unCheck: [],
         },

@@ -42,17 +42,9 @@
         <ui-input
           :model-value="product.offerCode"
           label="销售品编码"
-          placeholder="例如：DM0001-536-1-7 或 DM0001-536-1-7（未命中则跳过）"
+          placeholder="多个关键字/简拼查询销售品，如：乐享lx189上网"
           class="mb-2"
           @change="updateProduct(index, 'offerCode', $event)"
-        />
-
-        <ui-input
-          :model-value="product.offerName"
-          label="销售品名称（可选，用于中台模式）"
-          placeholder="例如：畅享套餐"
-          class="mb-2"
-          @change="updateProduct(index, 'offerName', $event)"
         />
 
         <!-- 勾选数组 -->
