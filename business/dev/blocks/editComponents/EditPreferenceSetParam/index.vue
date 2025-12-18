@@ -1,35 +1,5 @@
 <template>
-  <div class="edit-telecom-preference-set-param">
-    <!-- 基础配置 -->
-    <ui-card class="mb-4">
-      <p class="font-semibold mb-2">基础配置</p>
-
-      <ui-checkbox
-        :model-value="data.isZtSource"
-        class="mb-2"
-        @change="updateData({ isZtSource: $event })"
-      >
-        中台来源模式
-      </ui-checkbox>
-
-      <ui-input
-        :model-value="data.waitTimeout"
-        type="number"
-        label="等待超时时间（秒）"
-        placeholder="5"
-        class="mb-2 w-full"
-        @change="updateData({ waitTimeout: Number($event) || 5 })"
-      />
-
-      <ui-checkbox
-        :model-value="data.handleErrorDialog"
-        class="mb-2"
-        @change="updateData({ handleErrorDialog: $event })"
-      >
-        处理错误弹窗
-      </ui-checkbox>
-    </ui-card>
-
+  <div class="edit-preference-set-param">
     <!-- 参数组列表 -->
     <ui-card class="mb-4">
       <div class="flex items-center justify-between mb-2">
@@ -65,10 +35,8 @@
           <edit-autocomplete class="mb-3 w-full">
             <ui-input
               :model-value="group.paramGroupName"
-              :label="data.isZtSource ? '销售品编码' : '销售品名称'"
-              :placeholder="
-                data.isZtSource ? '如：YD5G01-018-1-1' : '如：主套餐'
-              "
+              label="销售品名称"
+              placeholder="如：主套餐"
               @change="updateParamGroup(groupIndex, { paramGroupName: $event })"
             />
           </edit-autocomplete>
@@ -121,9 +89,7 @@
                   />
                 </edit-autocomplete>
 
-                <!-- 普通模式显示参数类型 -->
                 <ui-select
-                  v-if="!data.isZtSource"
                   :model-value="param.parameterType"
                   label="参数类型"
                   class="mb-2 w-full"
@@ -149,20 +115,6 @@
                     "
                   />
                 </edit-autocomplete>
-
-                <!-- 中台模式显示参数编码 -->
-                <ui-input
-                  v-if="data.isZtSource"
-                  :model-value="param.parameterCode"
-                  label="参数编码"
-                  placeholder="如：termModel"
-                  class="mb-2 w-full"
-                  @change="
-                    updateParam(groupIndex, paramIndex, {
-                      parameterCode: $event,
-                    })
-                  "
-                />
               </div>
             </div>
 
@@ -231,7 +183,6 @@ function addParam(groupIndex) {
     parameterName: '',
     parameterType: '文本输入:input',
     parameterValue: '',
-    parameterCode: '',
   });
 
   group.preferenceSetParamList = paramList;

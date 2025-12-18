@@ -20,9 +20,9 @@ export default {
     data: {
       disableBlock: false,
       description: '',
-      isZtSource: false,
-      waitTimeout: 5,
-      handleErrorDialog: true,
+      // isZtSource: false,
+      // waitTimeout: 5,
+      // handleErrorDialog: true,
       preferenceSetParamList: [],
     },
   },
