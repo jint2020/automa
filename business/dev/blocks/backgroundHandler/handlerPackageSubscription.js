@@ -8,20 +8,11 @@ export default function () {
   return {
     async telecomPackageSubscription({ data, id }) {
       try {
-        const {
-          description,
-          isZtSource,
-          mutualExclusionCheck,
-          skipValidation,
-          productList,
-        } = data;
+        const { description, productList } = data;
 
         // 构建配置数据
         const config = {
           description,
-          isZtSource,
-          mutualExclusionCheck,
-          skipValidation,
           productList: productList || [],
           timestamp: new Date().toISOString(),
         };

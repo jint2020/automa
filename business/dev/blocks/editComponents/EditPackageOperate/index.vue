@@ -38,9 +38,9 @@
         @change="updateData({ packageType: $event })"
       >
         <option value="">请选择套餐类型</option>
-        <option value="主套餐:main">主套餐</option>
-        <option value="附加套餐:additional">附加套餐</option>
-        <option value="可选包:optional">可选包</option>
+        <option value="促销:salesPromotion">促销</option>
+        <option value="套餐销售品:packSale">套餐销售品</option>
+        <option value="可选包:optionalPack">可选包</option>
       </ui-select>
     </ui-card>
 
@@ -54,10 +54,14 @@
         class="mb-2 w-full"
         @change="updateData({ operate: $event })"
       >
-        <option value="退订:td">退订</option>
-        <option value="变更:change">变更</option>
         <option value="预存续约:preStoreRenewal">预存续约</option>
+        <option value="退订:td">退订</option>
+        <option value="拆机登记:disassembleRegister">拆机登记</option>
+        <option value="极简订购:simplestBook">极简订购</option>
+        <option value="变更:change">变更</option>
         <option value="客户资料变更:custInfoChange">客户资料变更</option>
+        <option value="回执:receipt">回执</option>
+        <option value="详情:details">详情</option>
       </ui-select>
 
       <ui-checkbox
@@ -83,28 +87,6 @@
       >
         处理下线产品提示
       </ui-checkbox>
-    </ui-card>
-
-    <!-- 证件号码保存配置 -->
-    <ui-card class="mb-4">
-      <p class="font-semibold mb-2">证件号码保存</p>
-
-      <ui-checkbox
-        :model-value="data.saveIdCode"
-        class="mb-2"
-        @change="updateData({ saveIdCode: $event })"
-      >
-        保存证件号码
-      </ui-checkbox>
-
-      <ui-input
-        v-if="data.saveIdCode"
-        :model-value="data.idCodeVariable"
-        label="变量名"
-        placeholder="如：idCode"
-        class="mb-2 w-full"
-        @change="updateData({ idCodeVariable: $event })"
-      />
     </ui-card>
   </div>
 </template>

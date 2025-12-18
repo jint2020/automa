@@ -13,6 +13,7 @@ export default {
     autocomplete: ['variableName'],
     data: {
       disableBlock: false,
+      baseOrderSalesName: '', // 当前业务名称
       productInfo: [
         {
           type: '', // ui-select：选项:check, uncheck, infoItem

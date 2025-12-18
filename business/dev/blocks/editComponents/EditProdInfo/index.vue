@@ -3,10 +3,24 @@
  * @Author: Jin Tang
  * @Date: 2025-12-17 17:07:39
  * @LastEditors: Jin Tang
- * @LastEditTime: 2025-12-17 17:19:13
+ * @LastEditTime: 2025-12-18 16:08:49
 -->
 <template>
   <div class="edit-prod-info">
+    <ui-card class="mb-4">
+      <div class="mb-2 flex items-center justify-between">
+        <p class="font-semibold">基础配置</p>
+      </div>
+      <edit-autocomplete class="mb-2 w-full">
+        <ui-input
+          :model-value="data.baseOrderSalesName"
+          label="当前业务名称"
+          placeholder="如：主套餐"
+          @change="updateData({ baseOrderSalesName: $event })"
+        />
+      </edit-autocomplete>
+    </ui-card>
+
     <ui-card class="flex-col">
       <div class="mb-2 flex items-center justify-between">
         <p class="font-semibold">产品信息配置列表</p>

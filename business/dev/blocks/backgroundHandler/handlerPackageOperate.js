@@ -17,8 +17,6 @@ export default function () {
           filterExpired,
           handleSkipValidation,
           handleOfflineProduct,
-          saveIdCode,
-          idCodeVariable,
         } = data;
 
         // 构建配置数据
@@ -31,17 +29,10 @@ export default function () {
           filterExpired,
           handleSkipValidation,
           handleOfflineProduct,
-          saveIdCode,
-          idCodeVariable,
           timestamp: new Date().toISOString(),
         };
 
-        // 如果需要保存证件号码到变量
-        if (saveIdCode && idCodeVariable) {
-          // 这里可以添加实际提取证件号码的逻辑
-          // 目前先用占位符
-          this.setVariable(idCodeVariable, 'EXTRACTED_ID_CODE');
-        }
+        // 这里可以添加实际的业务逻辑
 
         return {
           data: config,

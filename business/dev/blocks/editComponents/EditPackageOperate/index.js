@@ -28,8 +28,6 @@ export default {
       filterExpired: true,
       handleSkipValidation: true,
       handleOfflineProduct: true,
-      saveIdCode: true,
-      idCodeVariable: 'idCode',
     },
   },
 };

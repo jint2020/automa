@@ -20,10 +20,16 @@ export default {
     data: {
       disableBlock: false,
       description: '',
-      isZtSource: false,
-      mutualExclusionCheck: false,
-      skipValidation: false,
-      productList: [],
+      productList: [
+        {
+          offerCode: '', // 销售品编码,input输入，支持{{}}变量
+          productType: '基础有线宽带:productType', // 产品类型, select交互方式
+          productName: '天翼宽带拨号(原ADSL拨号):productName', // 产品名称，select交互方式
+          action: '订购:productAction', // 具体动作，select交互方式
+          addAccessType: '销售品内产品-天翼宽带拨号(原ADSL拨号):productAddType', // 加入类型，select交互方式
+          relatedParam: '', // 关联参数，input输入，支持{{}}变量
+        },
+      ],
     },
   },
 };
