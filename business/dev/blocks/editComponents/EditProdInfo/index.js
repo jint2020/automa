@@ -15,12 +15,14 @@ export default {
       disableBlock: false,
       baseOrderSalesName: '', // 当前业务名称
       productInfo: [
-        {
-          type: '', // ui-select：选项:check, uncheck, infoItem
-          key: '', // 前端创建时使用
-          value: '', // 产品信息值，支持{{}}变量
-          order: 0, // 顺序
-        },
+        // {
+        //   type: '', // ui-select：选项:check, uncheck, infoItem
+        //   key: '', // 前端创建时使用
+        //   value: '', // 产品信息值，支持{{}}变量
+        //   order: 0, // 顺序
+        //   infoItemType: '', // 信息项类型，仅当 type 为 infoItem 时使用
+        //   infoItemValue: '', // 信息项值，支持{{}}变量，仅当 type 为 infoItem 时使用
+        // },
       ],
     },
   },

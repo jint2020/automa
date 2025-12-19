@@ -14,6 +14,7 @@ import EditProdInfo from './EditProdInfo/index.vue';
 import EditPackageSubscription from './EditPackageSubscription/index.vue';
 import EditPackageOperate from './EditPackageOperate/index.vue';
 import EditPreferenceSetParam from './EditPreferenceSetParam/index.vue';
+import EditSubmitOrder from './EditSubmitOrder/index.vue';
 
 export default function () {
   return {
@@ -26,5 +27,6 @@ export default function () {
     EditPackageSubscription,
     EditPackageOperate,
     EditPreferenceSetParam,
+    EditSubmitOrder,
   };
 }

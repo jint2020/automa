@@ -14,6 +14,7 @@ import handleProdInfo from './handleProdInfo';
 import handlerPreferenceSetParam from './handlerPreferenceSetParam';
 import handlerPackageOperate from './handlerPackageOperate';
 import handlerPackageSubscription from './handlerPackageSubscription';
+import handlerSubmitOrder from './handlerSubmitOrder';
 
 export default function () {
   return {
@@ -26,5 +27,6 @@ export default function () {
     ...handlerPreferenceSetParam(),
     ...handlerPackageOperate(),
     ...handlerPackageSubscription(),
+    ...handlerSubmitOrder(),
   };
 }

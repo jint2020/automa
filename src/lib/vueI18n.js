@@ -3,7 +3,7 @@
  * @Author: Jin Tang
  * @Date: 2025-11-25 19:26:27
  * @LastEditors: Jin Tang
- * @LastEditTime: 2025-11-26 14:42:35
+ * @LastEditTime: 2025-12-19 16:09:09
  */
 import { nextTick } from 'vue';
 import { createI18n } from 'vue-i18n/dist/vue-i18n.esm-bundler';
@@ -14,12 +14,10 @@ import dayjs from './dayjs';
 // IMPORTANT: Only load specific locales to avoid syntax errors in other locale files
 // Currently loading: en (English) and zh (Chinese Simplified)
 // To add more locales, add patterns like '../locales/es/*.json' for Spanish
-const localeFiles = import.meta.glob([
-  '../locales/en/*.json',
-  '../locales/zh/*.json',
-], { eager: true });
-
-console.log('[i18n] Loaded locale files:', Object.keys(localeFiles));
+const localeFiles = import.meta.glob(
+  ['../locales/en/*.json', '../locales/zh/*.json'],
+  { eager: true }
+);
 
 // Helper function to get locale file content
 function getLocaleFile(locale, filename) {
@@ -71,8 +69,6 @@ export async function loadLocaleMessages(locale, location) {
       } else {
         i18n.global.setLocaleMessage(locale, messages);
       }
-
-      console.log(`[i18n] Loaded ${filename} for ${locale}`);
     } catch (error) {
       console.error(`[i18n] Error loading ${filename} for ${locale}:`, error);
     }
@@ -90,9 +86,6 @@ export async function loadLocaleMessages(locale, location) {
   importLocale('popup.json', true);
   importLocale(`${location}.json`, true);
   importLocale('blocks.json', true);
-
-  console.log(`[i18n] Locale ${locale} loaded for ${location}`);
-  console.log(`[i18n] Available locales:`, i18n.global.availableLocales);
 
   return nextTick();
 }

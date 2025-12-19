@@ -1,3 +1,11 @@
+/*
+ * @Description: 
+ * @Author: Jin Tang
+ * @Date: 2025-11-25 18:33:40
+ * @LastEditors: Jin Tang
+ * @LastEditTime: 2025-12-19 16:07:15
+ */
+/* eslint-disable no-console */
 /**
  * Web Mode Entry Point
  *
@@ -29,7 +37,6 @@ import './assets/css/style.css';
 import './assets/css/flow.css';
 
 // Log environment info
-console.log('🚀 Automa Web Mode Starting...');
 console.log('Environment:', {
   mode: import.meta.env.MODE,
   dev: import.meta.env.DEV,
@@ -49,8 +56,6 @@ const app = createApp(App)
   .use(vRemixicon, icons);
 
 app.mount('#app');
-
-console.log('✅ Automa Web Mode initialized successfully');
 
 // Vite HMR (Hot Module Replacement)
 if (import.meta.hot) {

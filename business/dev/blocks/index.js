@@ -14,6 +14,7 @@ import prodInfo from './editComponents/EditProdInfo/index';
 import telecomPackageSubscription from './editComponents/EditPackageSubscription/index';
 import telecomPackageOperate from './editComponents/EditPackageOperate/index';
 import telecomPreferenceSetParam from './editComponents/EditPreferenceSetParam/index';
+import submitOrder from './editComponents/EditSubmitOrder/index';
 
 export default function () {
   return {
@@ -26,5 +27,6 @@ export default function () {
     ...telecomPackageSubscription,
     ...telecomPackageOperate,
     ...telecomPreferenceSetParam,
+    ...submitOrder,
   };
 }

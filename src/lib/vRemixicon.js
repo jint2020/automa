@@ -150,10 +150,12 @@ import {
   riSettings4Line,
   riFileSettingsLine,
   riCheckDoubleFill,
+  riSendPlaneLine,
 } from 'v-remixicon/icons';
 import { computed, h, inject } from 'vue';
 
 export const icons = {
+  riSendPlaneLine,
   riCheckDoubleFill,
   riH1,
   riH2,
