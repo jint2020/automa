@@ -13,6 +13,8 @@ import {
   riArrowUpDownLine,
   riArticleLine,
   riBaseStationLine,
+  riServerLine,
+  riTerminalBoxLine,
   riBold,
   riBook3Line,
   riBracketsLine,
@@ -151,12 +153,16 @@ import {
   riFileSettingsLine,
   riCheckDoubleFill,
   riSendPlaneLine,
+  riUploadCloudLine,
 } from 'v-remixicon/icons';
 import { computed, h, inject } from 'vue';
 
 export const icons = {
   riSendPlaneLine,
   riCheckDoubleFill,
+  riServerLine,
+  riTerminalBoxLine,
+  riUploadCloudLine,
   riH1,
   riH2,
   riAB,

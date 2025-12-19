@@ -161,6 +161,33 @@
     </button>
   </ui-card>
   <ui-card padding="p-1 ml-4 space-x-1 pointer-events-auto flex items-center">
+    <!-- 服务状态指示器 -->
+    <button
+      v-tooltip.group="serviceStatusTooltip"
+      class="hoverable rounded-lg p-2"
+      @click="executionStore.checkHealth()"
+    >
+      <v-remixicon name="riServerLine" :class="serviceStatusColor" />
+    </button>
+    <!-- 运行/停止按钮 -->
+    <button
+      v-if="!executionStore.isExecuting"
+      v-tooltip.group="runButtonTooltip"
+      :class="[canExecuteLocal ? 'hoverable' : 'cursor-not-allowed opacity-50']"
+      class="rounded-lg p-2"
+      @click="executeLocalWorkflow"
+    >
+      <v-remixicon name="riPlayLine" class="text-green-500" />
+    </button>
+    <button
+      v-else
+      v-tooltip.group="'停止执行'"
+      class="hoverable rounded-lg p-2"
+      @click="stopLocalExecution"
+    >
+      <v-remixicon name="riStopLine" class="text-red-500" />
+    </button>
+    <div class="mx-1 h-5 w-px bg-gray-300 dark:bg-gray-600"></div>
     <button
       v-if="!canEdit"
       v-tooltip.group="state.triggerText"
@@ -182,6 +209,14 @@
         >
           <v-remixicon name="riFileCopyLine" class="mr-2 -ml-1" />
           Copy workflow Id
+        </ui-list-item>
+        <ui-list-item
+          v-close-popover
+          class="cursor-pointer"
+          @click="publishWorkflowId"
+        >
+          <v-remixicon name="riUploadCloudLine" class="mr-2 -ml-1" />
+          发布工作流
         </ui-list-item>
         <ui-list-item
           v-if="isTeam && canEdit"
@@ -337,6 +372,7 @@ import { useSharedWorkflowStore } from '@/stores/sharedWorkflow';
 import { useTeamWorkflowStore } from '@/stores/teamWorkflow';
 import { useUserStore } from '@/stores/user';
 import { useWorkflowStore } from '@/stores/workflow';
+import { useExecutionStore, ServiceStatus } from '@/stores/execution';
 import { fetchApi } from '@/utils/api';
 import convertWorkflowData from '@/utils/convertWorkflowData';
 import { findTriggerBlock, parseJSON } from '@/utils/helper';
@@ -344,7 +380,7 @@ import { tagColors } from '@/utils/shared';
 import getTriggerText from '@/utils/triggerText';
 import { convertWorkflow, exportWorkflow } from '@/utils/workflowData';
 import { registerWorkflowTrigger } from '@/utils/workflowTrigger';
-import { computed, reactive } from 'vue';
+import { computed, reactive, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
@@ -397,6 +433,9 @@ const shortcuts = useShortcut(
 
 const { teamId } = router.currentRoute.value.params;
 
+// 初始化执行 store
+const executionStore = useExecutionStore();
+
 const state = reactive({
   triggerText: '',
   loadingSync: false,
@@ -404,10 +443,64 @@ const state = reactive({
   isUploadingHost: false,
   showEditDescription: false,
 });
+
+// 本地服务状态计算属性
+const canExecuteLocal = computed(() => {
+  // 必须先保存工作流才能执行
+  if (props.isDataChanged) return false;
+  // 服务必须健康
+  if (!executionStore.isServiceHealthy) return false;
+  // 不能正在执行中
+  if (executionStore.isExecuting) return false;
+  return true;
+});
+
+// 运行按钮提示文本
+const runButtonTooltip = computed(() => {
+  if (props.isDataChanged) {
+    return '请先保存工作流';
+  }
+  if (!executionStore.isServiceHealthy) {
+    return '本地服务未启动，请启动调试服务';
+  }
+  if (executionStore.isExecuting) {
+    return '工作流执行中...';
+  }
+  return '运行工作流 (本地调试)';
+});
+
+// 服务状态提示文本
+const serviceStatusTooltip = computed(() => {
+  if (executionStore.localServiceStatus === ServiceStatus.UNKNOWN) {
+    return '正在检查本地服务状态...';
+  }
+  if (executionStore.isServiceHealthy) {
+    return '本地服务已连接';
+  }
+  return executionStore.healthCheckError || '本地服务未连接';
+});
+
+// 服务状态图标颜色
+const serviceStatusColor = computed(() => {
+  if (executionStore.localServiceStatus === ServiceStatus.UNKNOWN) {
+    return 'text-gray-400';
+  }
+  return executionStore.isServiceHealthy ? 'text-green-500' : 'text-red-500';
+});
 const renameState = reactive({
   name: '',
   description: '',
   showModal: false,
+});
+
+// 启动健康检查
+onMounted(() => {
+  executionStore.startHealthCheck(5000);
+});
+
+// 停止健康检查
+onUnmounted(() => {
+  executionStore.stopHealthCheck();
 });
 
 const shared = computed(() => sharedWorkflowStore.getById(props.workflow.id));
@@ -458,6 +551,12 @@ function copyWorkflowId() {
     textarea.blur();
   });
 }
+
+function publishWorkflowId() {
+  // TODO implement publish workflow id
+  const workFlowId = props.workflow.id;
+}
+
 function updateWorkflowDescription(value) {
   const keys = ['description', 'category', 'content', 'tag', 'name'];
   const payload = {};
@@ -509,6 +608,52 @@ async function executeCurrWorkflow() {
     ...props.workflow,
     isTesting: props.isDataChanged,
   });
+}
+
+/**
+ * 本地调试执行工作流
+ */
+async function executeLocalWorkflow() {
+  // 检查是否已保存
+  if (props.isDataChanged) {
+    toast.warning('请先保存工作流后再执行');
+    return;
+  }
+
+  // 检查服务状态
+  if (!executionStore.isServiceHealthy) {
+    toast.error('本地服务未启动，请先启动调试服务');
+    return;
+  }
+
+  // 检查是否正在执行
+  if (executionStore.isExecuting) {
+    toast.warning('已有工作流正在执行中');
+    return;
+  }
+
+  try {
+    await executionStore.executeWorkflow(props.workflow);
+    toast.success('工作流开始执行');
+    // 触发显示执行日志面板
+    emit('modal', 'execution-logs');
+  } catch (error) {
+    toast.error(error.message || '执行失败');
+    console.error('执行工作流失败:', error);
+  }
+}
+
+/**
+ * 停止本地执行
+ */
+async function stopLocalExecution() {
+  try {
+    await executionStore.stopExecution();
+    toast.info('工作流已停止');
+  } catch (error) {
+    toast.error(error.message || '停止执行失败');
+    console.error('停止执行失败:', error);
+  }
 }
 async function setAsHostWorkflow(isHost) {
   if (!userStore.user) {

@@ -357,6 +357,7 @@ import EditorLocalCtxMenu from '@/components/newtab/workflow/editor/EditorLocalC
 import EditorLocalSavedBlocks from '@/components/newtab/workflow/editor/EditorLocalSavedBlocks.vue';
 import EditorPkgActions from '@/components/newtab/workflow/editor/EditorPkgActions.vue';
 import EditorUsedCredentials from '@/components/newtab/workflow/editor/EditorUsedCredentials.vue';
+import EditorExecutionPanel from '@/components/newtab/workflow/editor/EditorExecutionPanel.vue';
 import WorkflowDataTable from '@/components/newtab/workflow/WorkflowDataTable.vue';
 import WorkflowDetailsCard from '@/components/newtab/workflow/WorkflowDetailsCard.vue';
 import WorkflowEditBlock from '@/components/newtab/workflow/WorkflowEditBlock.vue';
@@ -586,6 +587,26 @@ const workflowModals = {
     },
     events: {
       close() {
+        modalState.show = false;
+        modalState.name = '';
+      },
+    },
+  },
+  'execution-logs': {
+    width: 'max-w-3xl',
+    icon: 'riTerminalBoxLine',
+    component: EditorExecutionPanel,
+    title: '执行日志',
+    attrs: {
+      customContent: true,
+    },
+    events: {
+      close() {
+        modalState.show = false;
+        modalState.name = '';
+      },
+      retry() {
+        // 重新执行工作流的逻辑会通过 EditorLocalActions 处理
         modalState.show = false;
         modalState.name = '';
       },
