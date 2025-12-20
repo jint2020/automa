@@ -3,11 +3,11 @@
  * @Author: Jin Tang
  * @Date: 2025-12-10 17:59:25
  * @LastEditors: Jin Tang
- * @LastEditTime: 2025-12-17 15:03:37
+ * @LastEditTime: 2025-12-20 17:44:07
  */
 export default {
   // 登录处理块
-  login: {
+  'telecom-login': {
     name: '登录处理',
     description: '处理登录参数和登录返回结果',
     icon: 'riLoginBoxLine',
@@ -22,7 +22,7 @@ export default {
     data: {
       disableBlock: false,
       description: '',
-      loginMethod: 'account', // account | cookie
+      loginType: 'password', // password | cookie
       // 账号密码登录参数
       username: '',
       password: '',

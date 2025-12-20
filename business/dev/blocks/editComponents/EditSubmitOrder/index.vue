@@ -4,7 +4,7 @@
  * @Date: 2025-12-19
 -->
 <template>
-  <div class="edit-submit-order">
+  <div class="edit-telecom-submit-order">
     <!-- 基础配置 -->
     <ui-card class="mb-4">
       <div class="mb-2 flex items-center justify-between">

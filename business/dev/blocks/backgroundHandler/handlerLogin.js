@@ -3,7 +3,7 @@ export default function () {
     async login({ data, id }) {
       try {
         const {
-          loginMethod,
+          loginType,
           username,
           password,
           position,
@@ -16,16 +16,16 @@ export default function () {
 
         // 1. 构建登录请求参数
         const loginParams = {
-          loginMethod,
+          loginType,
           position,
         };
 
         // 根据登录方式构建参数
-        if (loginMethod === 'account') {
+        if (loginType === 'password') {
           // 账号密码登录
           loginParams.username = username;
           loginParams.password = password;
-        } else if (loginMethod === 'cookie') {
+        } else if (loginType === 'cookie') {
           // Cookie 登录（JSESSIONID 会从浏览器自动获取）
           loginParams.method = 'cookie';
         }

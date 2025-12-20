@@ -7,7 +7,7 @@
  */
 export default {
   // TODO crm经办人
-  'crm-agent': {
+  'telecom-agent-info': {
     name: 'CRM - 经办人',
     description: '经办人信息',
     icon: 'riContactsLine',

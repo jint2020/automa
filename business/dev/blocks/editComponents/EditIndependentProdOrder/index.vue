@@ -1,13 +1,13 @@
 <template>
-  <div class="edit-independent-prod-order">
+  <div class="edit-telecom-independent-product-order">
     <!-- 基础配置 -->
     <ui-card class="mb-4">
       <p class="font-semibold mb-2">基础配置</p>
 
       <ui-checkbox
-        :model-value="data.skikNoOrderFlag"
+        :model-value="data.skipValidation"
         class="mb-2"
-        @change="updateData({ skikNoOrderFlag: $event })"
+        @change="updateData({ skipValidation: $event })"
       >
         没有订购标识跳过当前流程
       </ui-checkbox>

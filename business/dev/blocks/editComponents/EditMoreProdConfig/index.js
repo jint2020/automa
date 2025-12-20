@@ -7,7 +7,7 @@
  */
 export default {
   // 更多产品配置处理块
-  'more-prod-conf': {
+  'telecom-more-sales-prod-config': {
     name: '更多产品配置配置',
     description: '处理更多产品配置参数和返回结果',
     icon: 'riMoreFill',

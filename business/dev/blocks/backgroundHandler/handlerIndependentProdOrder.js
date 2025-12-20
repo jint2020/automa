@@ -1,6 +1,6 @@
 export default function () {
   return {
-    'independent-prod-order': async function ({ data, id }) {
+    'telecom-independent-product-order': async function ({ data, id }) {
       try {
         const {
           isZtSource,
@@ -63,7 +63,7 @@ export default function () {
         // 6. 实际场景中，这里应该发送消息到 content script 执行具体的浏览器操作
         // 例如：
         // const result = await this.sendMessage('executeContentScript', {
-        //   name: 'independent-prod-order',
+        //   name: 'telecom-independent-product-order',
         //   params: orderParams,
         // });
 

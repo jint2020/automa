@@ -4,7 +4,7 @@
  * @Date: 2025-12-19
  */
 export default {
-  'submit-order': {
+  'telecom-submit-order': {
     name: '订单提交',
     description: '电信CRM订单提交处理，支持弹窗处理、错误处理、订单作废等',
     icon: 'riSendPlaneLine',

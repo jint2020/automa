@@ -13,10 +13,10 @@
       </div>
       <edit-autocomplete class="mb-2 w-full">
         <ui-input
-          :model-value="data.baseOrderSalesName"
+          :model-value="data.offerName"
           label="当前业务名称"
           placeholder="如：主套餐"
-          @change="updateData({ baseOrderSalesName: $event })"
+          @change="updateData({ offerName: $event })"
         />
       </edit-autocomplete>
     </ui-card>

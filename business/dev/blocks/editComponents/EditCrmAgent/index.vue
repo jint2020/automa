@@ -1,5 +1,5 @@
 <template>
-  <div class="edit-crm-agent">
+  <div class="edit-telecom-agent-info">
     <ui-card class="flex-col mb-4">
       <p class="font-semibold mb-2">经办人信息</p>
       <hr class="mb-3" />
