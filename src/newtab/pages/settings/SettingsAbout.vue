@@ -22,7 +22,7 @@
         <v-remixicon :name="link.icon" />
       </a>
     </div>
-    <div class="my-8 border-b dark:border-gray-700"></div>
+    <!-- <div class="my-8 border-b dark:border-gray-700"></div>
     <h2 class="text-xl font-semibold">Contributors</h2>
     <p class="mt-1 text-gray-600 dark:text-gray-200">
       Thanks to everyone who has submitted issues, made suggestions, and
@@ -44,7 +44,7 @@
         />
       </a>
     </div>
-    <h3>Translators</h3>
+    <h3>Translators</h3> -->
   </div>
 </template>
 <script setup>
@@ -52,7 +52,7 @@
 import { useGroupTooltip } from '@/composable/groupTooltip';
 import { useStore } from '@/stores/main';
 import { communities } from '@/utils/shared';
-import { onMounted } from 'vue';
+// import { onMounted } from 'vue';
 import browser from 'webextension-polyfill';
 
 useGroupTooltip();
@@ -61,48 +61,48 @@ const store = useStore();
 const extensionVersion = browser.runtime.getManifest().version;
 const links = [
   ...communities,
-  {
-    name: 'Website',
-    icon: 'riGlobalLine',
-    url: 'https://extension.automa.site',
-  },
-  {
-    name: 'Documentation',
-    icon: 'riBook3Line',
-    url: 'https://docs.extension.automa.site',
-  },
-  {
-    name: 'Blog',
-    icon: 'riArticleLine',
-    url: 'https://blog.automa.site',
-  },
+  // {
+  //   name: 'Website',
+  //   icon: 'riGlobalLine',
+  //   url: 'https://extension.automa.site',
+  // },
+  // {
+  //   name: 'Documentation',
+  //   icon: 'riBook3Line',
+  //   url: 'https://docs.extension.automa.site',
+  // },
+  // {
+  //   name: 'Blog',
+  //   icon: 'riArticleLine',
+  //   url: 'https://blog.automa.site',
+  // },
 ];
 
-onMounted(async () => {
-  if (store.contributors) return;
+// onMounted(async () => {
+//   if (store.contributors) return;
 
-  try {
-    const response = await fetch(
-      'https://api.github.com/repositories/412741449/contributors'
-    );
-    const contributors = (await response.json()).reduce(
-      (acc, { type, avatar_url, login, html_url }) => {
-        if (type !== 'Bot') {
-          acc.push({
-            username: login,
-            url: html_url,
-            avatar: avatar_url,
-          });
-        }
+//   try {
+//     const response = await fetch(
+//       'https://api.github.com/repositories/412741449/contributors'
+//     );
+//     const contributors = (await response.json()).reduce(
+//       (acc, { type, avatar_url, login, html_url }) => {
+//         if (type !== 'Bot') {
+//           acc.push({
+//             username: login,
+//             url: html_url,
+//             avatar: avatar_url,
+//           });
+//         }
 
-        return acc;
-      },
-      []
-    );
+//         return acc;
+//       },
+//       []
+//     );
 
-    store.contributors = contributors;
-  } catch (error) {
-    console.error(error);
-  }
-});
+//     store.contributors = contributors;
+//   } catch (error) {
+//     console.error(error);
+//   }
+// });
 </script>

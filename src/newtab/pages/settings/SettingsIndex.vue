@@ -41,20 +41,12 @@
           {{ locale.name }}
         </option>
       </ui-select>
-      <a
-        class="ml-1 block text-gray-600 dark:text-gray-200"
-        href="https://github.com/AutomaApp/automa/wiki/Help-Translate"
-        target="_blank"
-        rel="noopener"
-      >
-        {{ t('settings.language.helpTranslate') }}
-      </a>
     </div>
     <p v-if="isLangChange" class="ml-4 inline-block">
       {{ t('settings.language.reloadPage') }}
     </p>
   </div>
-  <div id="delete-logs" class="mt-12">
+  <!-- <div id="delete-logs" class="mt-12">
     <p class="mb-1 font-semibold">Workflow Logs</p>
     <div class="flex items-center">
       <ui-select
@@ -87,7 +79,7 @@
         @change="updateSetting('logsLimit', +$event <= 0 ? 1000 : +$event)"
       />
     </div>
-  </div>
+  </div> -->
 </template>
 <script setup>
 import { computed, ref } from 'vue';
