@@ -123,6 +123,8 @@ import { useWorkflowStore } from '@/stores/workflow';
 import { exportWorkflow } from '@/utils/workflowData';
 import { useSharedWorkflowStore } from '@/stores/sharedWorkflow';
 import RendererWorkflowService from '@/service/renderer/RendererWorkflowService';
+import { publishWorkflow as publishWorkflowApi } from '@/apis';
+import { useToast } from 'vue-toastification';
 import WorkflowsLocalCard from './WorkflowsLocalCard.vue';
 
 const props = defineProps({
@@ -153,10 +155,12 @@ const dialog = useDialog();
 const userStore = useUserStore();
 const workflowStore = useWorkflowStore();
 const sharedWorkflowStore = useSharedWorkflowStore();
+const toast = useToast();
 
 const state = shallowReactive({
   pinnedWorkflows: [],
   selectedWorkflows: [],
+  isPublishing: false,
 });
 const renameState = shallowReactive({
   id: '',
@@ -366,7 +370,72 @@ function togglePinWorkflow(workflow) {
   });
 }
 
+async function publishWorkflowId(workflow) {
+  // 检查是否有 trigger 块
+  const triggerBlock = workflow.drawflow?.nodes?.find(
+    (node) => node.label === 'trigger'
+  );
+  if (!triggerBlock) {
+    toast.error('工作流必须包含触发器(trigger)块');
+    return;
+  }
+
+  try {
+    state.isPublishing = true;
+    toast.info('正在发布工作流...');
+
+    // 准备发布数据
+    const publishData = {
+      id: workflow.id,
+      name: workflow.name,
+      description: workflow.description,
+      drawflow: workflow.drawflow,
+      trigger: workflow.trigger || triggerBlock.data,
+      globalData: workflow.globalData,
+      table: workflow.table || [],
+      dataColumns: workflow.dataColumns || [],
+      settings: workflow.settings,
+    };
+
+    // 调用发布 API
+    const response = await publishWorkflowApi(workflow.id, publishData);
+
+    // axios 响应数据在 response.data 中
+    if (!response.data.success) {
+      throw new Error(response.data.message || '发布失败');
+    }
+
+    const result = response.data;
+
+    toast.success('工作流发布成功！');
+
+    // 更新本地工作流的发布状态
+    workflowStore.update({
+      id: workflow.id,
+      data: {
+        isPublished: true,
+        publishedAt: Date.now(),
+        publishUrl: result.data?.publishUrl || result.data?.url,
+      },
+    });
+  } catch (error) {
+    console.error('发布工作流失败:', error);
+    toast.error(error.message || '发布失败，请重试');
+  } finally {
+    state.isPublishing = false;
+  }
+}
+
 const menu = [
+  // 发布工作流
+  {
+    id: 'publish',
+    name: '发布工作流',
+    icon: 'riUploadCloudLine',
+    action: (workflow) => {
+      publishWorkflowId(workflow);
+    },
+  },
   {
     id: 'copy-id',
     name: 'Copy workflow id',

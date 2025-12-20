@@ -382,6 +382,7 @@ import { usePackageStore } from '@/stores/package';
 import { useTeamWorkflowStore } from '@/stores/teamWorkflow';
 import { useUserStore } from '@/stores/user';
 import { useWorkflowStore } from '@/stores/workflow';
+import { useExecutionStore } from '@/stores/execution';
 import { fetchApi } from '@/utils/api';
 import convertWorkflowData from '@/utils/convertWorkflowData';
 import DroppedNode from '@/utils/editor/DroppedNode';
@@ -430,6 +431,7 @@ const router = useRouter();
 const userStore = useUserStore();
 const packageStore = usePackageStore();
 const workflowStore = useWorkflowStore();
+const executionStore = useExecutionStore();
 const commandManager = useCommandManager();
 const teamWorkflowStore = useTeamWorkflowStore();
 
@@ -593,22 +595,24 @@ const workflowModals = {
     },
   },
   'execution-logs': {
-    width: 'max-w-3xl',
+    width: 'max-w-4xl',
     icon: 'riTerminalBoxLine',
     component: EditorExecutionPanel,
     title: '执行日志',
-    attrs: {
-      customContent: true,
-    },
     events: {
       close() {
         modalState.show = false;
         modalState.name = '';
       },
-      retry() {
-        // 重新执行工作流的逻辑会通过 EditorLocalActions 处理
-        modalState.show = false;
-        modalState.name = '';
+      async retry() {
+        // 重新执行工作流
+        try {
+          await executionStore.executeWorkflow(workflow.value);
+          toast.success('工作流开始执行');
+        } catch (error) {
+          toast.error(error.message || '执行失败');
+          console.error('重新执行工作流失败:', error);
+        }
       },
     },
   },

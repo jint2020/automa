@@ -79,11 +79,11 @@ export function stopWorkflow(id) {
 /**
  * Get workflow execution status
  * 获取工作流的执行状态和统计信息
- * @param {string} id
+ * @param {string} executionId
  * @returns {Promise}
  */
 export function getExecutionStatus(id) {
-  return http.get(`/workflows/${id}/status`);
+  return http.get(`/executions/${id}/status`);
 }
 
 /**

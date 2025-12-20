@@ -1,18 +1,19 @@
 <template>
-  <div class="flex h-full flex-col">
-    <!-- 头部 -->
+  <div class="flex flex-col" style="min-height: 500px; max-height: 65vh">
+    <!-- 状态信息头部 -->
     <div
-      class="flex items-center justify-between border-b p-3 dark:border-gray-700"
+      v-if="executionStore.currentExecution"
+      class="flex items-center justify-between border-b bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800"
     >
-      <div class="flex items-center space-x-2">
-        <v-remixicon name="riTerminalBoxLine" />
-        <span class="font-semibold">执行日志</span>
+      <div class="flex items-center space-x-3">
         <span
-          v-if="executionStore.currentExecution"
           :class="statusBadgeClass"
-          class="rounded-full px-2 py-0.5 text-xs"
+          class="rounded-full px-3 py-1 text-sm font-medium"
         >
           {{ statusText }}
+        </span>
+        <span class="text-sm text-gray-500 dark:text-gray-400">
+          {{ executionStore.currentExecution.workflowName }}
         </span>
       </div>
       <div class="flex items-center space-x-2">
@@ -23,48 +24,27 @@
         >
           <v-remixicon name="riDeleteBinLine" size="18" />
         </button>
-        <button
-          v-tooltip="'关闭'"
-          class="hoverable rounded-lg p-1.5"
-          @click="$emit('close')"
-        >
-          <v-remixicon name="riCloseLine" size="18" />
-        </button>
       </div>
     </div>
-
-    <!-- 执行信息 -->
     <div
-      v-if="executionStore.currentExecution"
-      class="border-b bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800"
+      v-else
+      class="flex items-center justify-between border-b p-3 dark:border-gray-700"
     >
-      <div class="flex items-center justify-between text-sm">
-        <div class="space-y-1">
-          <p class="text-gray-600 dark:text-gray-300">
-            <span class="font-medium">工作流:</span>
-            {{ executionStore.currentExecution.workflowName }}
-          </p>
-          <p class="text-gray-500 dark:text-gray-400">
-            <span class="font-medium">执行ID:</span>
-            {{ executionStore.currentExecution.executionId }}
-          </p>
-        </div>
-        <div v-if="executionStore.currentExecution.progress" class="text-right">
-          <p class="text-gray-600 dark:text-gray-300">
-            进度: {{ executionStore.currentExecution.progress }}%
-          </p>
-          <div class="mt-1 h-2 w-24 overflow-hidden rounded-full bg-gray-200">
-            <div
-              class="h-full bg-primary transition-all"
-              :style="{ width: `${executionStore.currentExecution.progress}%` }"
-            ></div>
-          </div>
-        </div>
+      <div class="flex items-center space-x-2 text-sm text-gray-500">
+        <v-remixicon name="riTerminalBoxLine" size="18" />
+        <span>等待执行...</span>
       </div>
+      <button
+        v-tooltip="'清空日志'"
+        class="hoverable rounded-lg p-1.5"
+        @click="executionStore.clearLogs()"
+      >
+        <v-remixicon name="riDeleteBinLine" size="18" />
+      </button>
     </div>
 
     <!-- 日志列表 -->
-    <div ref="logsContainer" class="flex-1 overflow-y-auto p-3">
+    <div ref="logsContainer" class="flex-1 overflow-y-auto p-4">
       <div v-if="executionStore.logs.length === 0" class="py-8 text-center">
         <v-remixicon
           name="riFileListLine"
@@ -96,33 +76,31 @@
 
     <!-- 底部操作栏 -->
     <div
-      class="flex items-center justify-between border-t p-3 dark:border-gray-700"
+      class="flex items-center justify-between border-t bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
     >
-      <div class="flex items-center space-x-2 text-sm text-gray-500">
+      <div class="flex items-center space-x-2 text-sm">
         <v-remixicon
           name="riServerLine"
           :class="serviceStatusColor"
-          size="16"
+          size="18"
         />
-        <span>{{ serviceStatusText }}</span>
+        <span :class="serviceStatusColor">{{ serviceStatusText }}</span>
       </div>
       <div class="flex items-center space-x-2">
         <ui-button
           v-if="executionStore.isExecuting"
           variant="danger"
-          class="px-4"
           @click="stopExecution"
         >
-          <v-remixicon name="riStopLine" class="mr-1" size="18" />
+          <v-remixicon name="riStopLine" class="mr-1.5" size="16" />
           停止执行
         </ui-button>
         <ui-button
           v-else-if="canRetry"
           variant="accent"
-          class="px-4"
-          @click="$emit('retry')"
+          @click="retryExecution"
         >
-          <v-remixicon name="riRefreshLine" class="mr-1" size="18" />
+          <v-remixicon name="riRefreshLine" class="mr-1.5" size="16" />
           重新执行
         </ui-button>
       </div>
@@ -139,7 +117,7 @@ import {
 } from '@/stores/execution';
 import { useToast } from 'vue-toastification';
 
-defineEmits(['close', 'retry']);
+const emit = defineEmits(['close', 'retry']);
 
 const toast = useToast();
 const executionStore = useExecutionStore();
@@ -260,5 +238,10 @@ async function stopExecution() {
   } catch (error) {
     toast.error(error.message || '停止执行失败');
   }
+}
+
+// 重新执行
+function retryExecution() {
+  emit('retry');
 }
 </script>

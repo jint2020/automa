@@ -1,41 +1,66 @@
 /**
  * 本地执行服务
  * 负责与本地调试服务 (localhost:8583) 通信
+ * 复用 apis/workflows.js 的接口，只是 baseURL 改为本地服务地址
  */
+
+import axios from 'axios';
 
 // 本地服务配置
 const LOCAL_SERVICE_URL =
-  import.meta.env?.VITE_LOCAL_SERVICE_URL || 'http://localhost:8583';
-const HEALTH_CHECK_ENDPOINT = '/actuator/health';
-const EXECUTE_ENDPOINT = '/workflow/execute';
-const EXECUTION_STATUS_ENDPOINT = '/workflow/execution';
+  import.meta.env?.VITE_LOCAL_SERVICE_URL || 'http://localhost:8583/api/';
 
-// 请求超时时间（毫秒）
-const REQUEST_TIMEOUT = 10000;
-const HEALTH_CHECK_TIMEOUT = 3000;
+// 创建专门用于本地服务的 axios 实例
+const localRequest = axios.create({
+  baseURL: LOCAL_SERVICE_URL,
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-/**
- * 带超时的 fetch 请求
- */
-async function fetchWithTimeout(url, options = {}, timeout = REQUEST_TIMEOUT) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
+// 响应拦截器 - 简化版，不需要认证
+localRequest.interceptors.response.use(
+  (response) => {
     return response;
-  } catch (error) {
-    clearTimeout(timeoutId);
-    if (error.name === 'AbortError') {
-      throw new Error('请求超时');
-    }
-    throw error;
+  },
+  (error) => {
+    // 处理错误但不显示 toast
+    const errorMessage =
+      error.response?.data?.message || error.message || 'Network Error';
+
+    console.error('[Local Service Error]', {
+      status: error.response?.status,
+      message: errorMessage,
+      url: error.config?.url,
+    });
+
+    return Promise.reject(error);
   }
-}
+);
+
+// Helper methods - 与 apis/interceptor.js 保持一致
+const http = {
+  get(url, config) {
+    return localRequest.get(url, config);
+  },
+
+  post(url, data, config) {
+    return localRequest.post(url, data, config);
+  },
+
+  put(url, data, config) {
+    return localRequest.put(url, data, config);
+  },
+
+  delete(url, config) {
+    return localRequest.delete(url, config);
+  },
+
+  patch(url, data, config) {
+    return localRequest.patch(url, data, config);
+  },
+};
 
 /**
  * 本地执行服务类
@@ -68,28 +93,11 @@ class LocalExecutionService {
    */
   async checkHealth() {
     try {
-      const response = await fetchWithTimeout(
-        `${this.baseUrl}${HEALTH_CHECK_ENDPOINT}`,
-        {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-          },
-        },
-        HEALTH_CHECK_TIMEOUT
-      );
+      const response = await http.get('http://localhost:8583/actuator/health', {
+        timeout: 3000,
+      });
 
-      if (!response.ok) {
-        this._isHealthy = false;
-        this._lastHealthCheck = new Date();
-        return {
-          status: 'DOWN',
-          healthy: false,
-          details: { error: `HTTP ${response.status}` },
-        };
-      }
-
-      const data = await response.json();
+      const { data } = response;
       this._isHealthy = data.status === 'UP';
       this._lastHealthCheck = new Date();
 
@@ -117,7 +125,7 @@ class LocalExecutionService {
    * @param {number} interval - 检查间隔（毫秒），默认 5000
    * @param {Function} callback - 状态变化回调
    */
-  startHealthCheck(interval = 5000, callback = null) {
+  startHealthCheck(interval = 20000, callback = null) {
     this.stopHealthCheck();
 
     // 立即执行一次
@@ -144,9 +152,25 @@ class LocalExecutionService {
 
   /**
    * 执行工作流
-   * @param {object} workflowData - 工作流数据
+   * 使用与 apis/workflows.js executeWorkflow 相同的接口
+   * POST /workflows/{id}/execute
+   *
+   * @param {object} workflowData - 工作流数据，必须包含 id
    * @param {object} options - 执行选项
-   * @returns {Promise<{executionId: string, status: string, message: string}>}
+   * @param {object} options.variables - 传递给工作流的变量
+   * @param {boolean} options.headless - 是否无头模式
+   * @returns {Promise<AxiosResponse>} 返回 ApiResponseExecutionResponse
+   * @example
+   * response.data = {
+   *   success: true,
+   *   message: "工作流开始执行",
+   *   data: {
+   *     executionId: "exec-123",
+   *     workflowId: "wf-456",
+   *     status: "running",
+   *     message: "执行中"
+   *   }
+   * }
    */
   async executeWorkflow(workflowData, options = {}) {
     // 检查健康状态
@@ -158,43 +182,24 @@ class LocalExecutionService {
     }
 
     try {
-      const response = await fetchWithTimeout(
-        `${this.baseUrl}${EXECUTE_ENDPOINT}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-          body: JSON.stringify({
-            workflowId: workflowData.id,
-            workflowData: {
-              id: workflowData.id,
-              name: workflowData.name,
-              drawflow: workflowData.drawflow,
-              globalData: workflowData.globalData,
-              table: workflowData.table || [],
-              dataColumns: workflowData.dataColumns || [],
-              settings: workflowData.settings || {},
-            },
-            options: {
-              debug: true,
-              ...options,
-            },
-          }),
-        }
+      // 调用 POST /workflows/{id}/execute
+      // 请求体格式：{ variables?: object, headless?: boolean }
+      const requestBody = {
+        variables: options.variables || {},
+        headless: options.headless !== undefined ? options.headless : true,
+      };
+
+      const response = await http.post(
+        `/workflows/${workflowData.id}/execute`,
+        requestBody
       );
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.message || `执行失败: HTTP ${response.status}`
-        );
-      }
-
-      return await response.json();
+      return response;
     } catch (error) {
-      if (error.message.includes('Failed to fetch')) {
+      if (
+        error.code === 'ECONNABORTED' ||
+        error.message.includes('Network Error')
+      ) {
         throw new Error('无法连接到本地服务，请确保本地调试服务已启动');
       }
       throw error;
@@ -203,68 +208,70 @@ class LocalExecutionService {
 
   /**
    * 获取执行状态
-   * @param {string} executionId - 执行ID
-   * @returns {Promise<object>}
+   * 使用与 apis/workflows.js getExecutionStatus 相同的接口
+   * @param {string} executionId - 工作流执行ID
+   * @returns {Promise<AxiosResponse>}
    */
   async getExecutionStatus(executionId) {
-    try {
-      const response = await fetchWithTimeout(
-        `${this.baseUrl}${EXECUTION_STATUS_ENDPOINT}/${executionId}/status`,
-        {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-          },
-        }
-      );
+    // 记录请求时间（用于调试）
+    const requestTime = Date.now();
+    const response = await http.get(`/executions/${executionId}/status`);
 
-      if (!response.ok) {
-        throw new Error(`获取状态失败: HTTP ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      throw error;
+    if (this._isHealthy && response.data) {
+      // 服务正常响应，保持健康状态
+      this._lastHealthCheck = new Date();
     }
+
+    // eslint-disable-next-line no-console
+    console.debug(
+      `[Local Service] Status check took ${Date.now() - requestTime}ms`
+    );
+    return response;
   }
 
   /**
    * 停止执行
-   * @param {string} executionId - 执行ID
-   * @returns {Promise<object>}
+   * 使用与 apis/workflows.js stopWorkflow 相同的接口
+   * @param {string} workflowId - 工作流ID
+   * @returns {Promise<AxiosResponse>}
    */
   async stopExecution(executionId) {
-    try {
-      const response = await fetchWithTimeout(
-        `${this.baseUrl}${EXECUTION_STATUS_ENDPOINT}/${executionId}/stop`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-        }
-      );
+    // 调用 POST /workflows/{id}/stop
+    const response = await http.post(`/executions/${executionId}/stop`);
 
-      if (!response.ok) {
-        throw new Error(`停止执行失败: HTTP ${response.status}`);
-      }
+    // eslint-disable-next-line no-console
+    console.debug(`[Local Service] Stopped workflow ${executionId}`);
+    return response;
+  }
 
-      return await response.json();
-    } catch (error) {
-      throw error;
-    }
+  /**
+   * 获取执行日志
+   * 使用与 apis/workflows.js getExecutionLogs 相同的接口
+   * @param {string} executionId - 工作流ID
+   * @param {Object} params - 查询参数
+   * @returns {Promise<AxiosResponse>}
+   */
+  async getExecutionLogs(executionId, params = {}) {
+    // 调用 GET /workflows/{id}/logs
+    const response = await http.get(`/workflows/${executionId}/logs`, {
+      params,
+    });
+
+    // eslint-disable-next-line no-console
+    console.debug(`[Local Service] Fetched logs for workflow ${executionId}`);
+    return response;
   }
 
   /**
    * 获取执行日志（SSE 流式）
-   * @param {string} executionId - 执行ID
+   * @param {string} workflowId - 工作流ID
    * @param {Function} onMessage - 消息回调
    * @param {Function} onError - 错误回调
    * @returns {EventSource}
    */
-  subscribeToExecutionLogs(executionId, onMessage, onError) {
-    const url = `${this.baseUrl}${EXECUTION_STATUS_ENDPOINT}/${executionId}/logs`;
+  subscribeToExecutionLogs(workflowId, onMessage, onError) {
+    // 使用 GET /workflows/{id}/execute-stream
+    const url = `${this.baseUrl}/workflows/${workflowId}/execute-stream`;
     const eventSource = new EventSource(url);
 
     eventSource.onmessage = (event) => {

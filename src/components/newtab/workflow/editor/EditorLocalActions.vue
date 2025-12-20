@@ -213,10 +213,14 @@
         <ui-list-item
           v-close-popover
           class="cursor-pointer"
+          :disabled="state.isPublishing"
           @click="publishWorkflowId"
         >
-          <v-remixicon name="riUploadCloudLine" class="mr-2 -ml-1" />
-          发布工作流
+          <div class="mr-2 -ml-1 flex w-5 items-center justify-center">
+            <v-remixicon v-if="!state.isPublishing" name="riUploadCloudLine" />
+            <ui-spinner v-else size="16" color="text-primary" />
+          </div>
+          {{ state.isPublishing ? '发布中...' : '发布工作流' }}
         </ui-list-item>
         <ui-list-item
           v-if="isTeam && canEdit"
@@ -373,6 +377,7 @@ import { useTeamWorkflowStore } from '@/stores/teamWorkflow';
 import { useUserStore } from '@/stores/user';
 import { useWorkflowStore } from '@/stores/workflow';
 import { useExecutionStore, ServiceStatus } from '@/stores/execution';
+import { publishWorkflow as publishWorkflowApi } from '@/apis';
 import { fetchApi } from '@/utils/api';
 import convertWorkflowData from '@/utils/convertWorkflowData';
 import { findTriggerBlock, parseJSON } from '@/utils/helper';
@@ -457,6 +462,12 @@ const canExecuteLocal = computed(() => {
 
 // 运行按钮提示文本
 const runButtonTooltip = computed(() => {
+  if (!props.workflow.published) {
+    return '工作流未发布，无法本地调试运行';
+  }
+  if (props.workflow.isDisabled) {
+    return '工作流已禁用，无法本地调试运行';
+  }
   if (props.isDataChanged) {
     return '请先保存工作流';
   }
@@ -552,9 +563,70 @@ function copyWorkflowId() {
   });
 }
 
-function publishWorkflowId() {
-  // TODO implement publish workflow id
+async function publishWorkflowId() {
+  // 检查是否已保存工作流
+  if (props.isDataChanged) {
+    toast.warning('请先保存工作流后再发布');
+    return;
+  }
+
+  // 检查是否有 trigger 块
+  const triggerBlock = props.workflow.drawflow?.nodes?.find(
+    (node) => node.label === 'trigger'
+  );
+  if (!triggerBlock) {
+    toast.error('工作流必须包含触发器(trigger)块');
+    return;
+  }
+
   const workFlowId = props.workflow.id;
+
+  try {
+    state.isPublishing = true;
+
+    // 准备发布数据
+    const publishData = {
+      id: props.workflow.id,
+      name: props.workflow.name,
+      description: props.workflow.description,
+      drawflow: props.workflow.drawflow,
+      trigger: props.workflow.trigger || triggerBlock.data,
+      globalData: props.workflow.globalData,
+      table: props.workflow.table || [],
+      dataColumns: props.workflow.dataColumns || [],
+      settings: props.workflow.settings,
+    };
+
+    // 调用发布 API
+    const response = await publishWorkflowApi(workFlowId, publishData);
+
+    // axios 响应数据在 response.data 中
+    if (!response.data.success) {
+      throw new Error(response.data.message || '发布失败');
+    }
+
+    const result = response.data;
+
+    toast.success('工作流发布成功！');
+
+    // 更新工作流状态为已发布
+    await updateWorkflow({
+      published: true,
+      publishUrl: result.publishUrl,
+      publishedAt: new Date().toISOString(),
+    });
+
+    // 如果有发布后的 URL，复制到剪贴板
+    if (result.publishUrl) {
+      navigator.clipboard.writeText(result.publishUrl);
+      toast.info('发布地址已复制到剪贴板');
+    }
+  } catch (error) {
+    console.error('发布工作流失败:', error);
+    toast.error(error.message || '发布失败，请重试');
+  } finally {
+    state.isPublishing = false;
+  }
 }
 
 function updateWorkflowDescription(value) {
@@ -614,15 +686,24 @@ async function executeCurrWorkflow() {
  * 本地调试执行工作流
  */
 async function executeLocalWorkflow() {
+  // 检查服务状态
+  if (!executionStore.isServiceHealthy) {
+    toast.error('本地服务未启动，请先启动调试服务');
+    return;
+  }
   // 检查是否已保存
   if (props.isDataChanged) {
     toast.warning('请先保存工作流后再执行');
     return;
   }
 
-  // 检查服务状态
-  if (!executionStore.isServiceHealthy) {
-    toast.error('本地服务未启动，请先启动调试服务');
+  if (props.workflow.isDisabled) {
+    toast.warning('工作流已禁用，无法本地执行');
+    return;
+  }
+
+  if (!props.workflow.published) {
+    toast.warning('工作流未发布，无法本地调试运行');
     return;
   }
 

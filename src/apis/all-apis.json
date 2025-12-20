@@ -16,7 +16,7 @@
   },
   "servers": [
     {
-      "url": "http://132.110.77.54:8080",
+      "url": "http://localhost:8583",
       "description": "Generated server url"
     }
   ],
@@ -30,8 +30,20 @@
       "description": "订单管理 API - 工作流执行订单的提交、查询和结果获取"
     },
     {
+      "name": "甩单集成",
+      "description": "工作流推送到甩单系统相关接口"
+    },
+    {
+      "name": "工作流字段管理",
+      "description": "工作流字段管理相关接口"
+    },
+    {
       "name": "Throw Order Trigger",
       "description": "甩单触发器 - 接收外部系统甩单，触发工作流执行"
+    },
+    {
+      "name": "Testing Mode",
+      "description": "测试模式 API - 工作流调试功能，支持断点、单步执行和状态监控"
     },
     {
       "name": "Workflow Management",
@@ -46,11 +58,180 @@
       "description": "块注册表 API - 查询可用的工作流块类型及其定义"
     },
     {
+      "name": "字段配置管理",
+      "description": "字段配置管理相关接口"
+    },
+    {
+      "name": "甩单工作流管理",
+      "description": "管理甩单触发类型的工作流及其字段"
+    },
+    {
       "name": "Workflow Publishing",
       "description": "工作流发布 API - 将工作流发布为公共 API 端点供外部调用"
     }
   ],
   "paths": {
+    "/api/workflows/{workflowId}/fields/{fieldId}": {
+      "get": {
+        "tags": [
+          "工作流字段管理"
+        ],
+        "summary": "获取字段详情",
+        "description": "获取指定字段的详细信息",
+        "operationId": "getField",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fieldId",
+            "in": "path",
+            "description": "字段ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowFieldDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "工作流字段管理"
+        ],
+        "summary": "更新字段",
+        "description": "更新指定字段的信息",
+        "operationId": "updateField",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fieldId",
+            "in": "path",
+            "description": "字段ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkflowFieldRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowFieldDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "工作流字段管理"
+        ],
+        "summary": "删除字段",
+        "description": "删除指定的字段",
+        "operationId": "deleteField",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fieldId",
+            "in": "path",
+            "description": "字段ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/workflows/{workflowId}/fields/sort": {
+      "put": {
+        "tags": [
+          "工作流字段管理"
+        ],
+        "summary": "批量排序字段",
+        "description": "批量更新字段的排序值",
+        "operationId": "sortFields",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FieldSortRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/workflows/{id}": {
       "get": {
         "tags": [
@@ -186,6 +367,39 @@
         }
       }
     },
+    "/api/throworder-integration/{workflowId}/sync": {
+      "put": {
+        "tags": [
+          "甩单集成"
+        ],
+        "summary": "同步更新到甩单",
+        "description": "将工作流的修改同步更新到甩单系统",
+        "operationId": "syncToThrowOrder",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/orders/{orderCode}/priority": {
       "put": {
         "tags": [
@@ -228,6 +442,148 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/field-configs/{id}": {
+      "get": {
+        "tags": [
+          "字段配置管理"
+        ],
+        "summary": "获取配置详情",
+        "description": "根据ID获取字段配置详情",
+        "operationId": "getById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "配置ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowFieldConfig"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "字段配置管理"
+        ],
+        "summary": "修改字段配置",
+        "description": "更新字段配置",
+        "operationId": "editFieldConfig",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "配置ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowFieldConfig"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowFieldConfig"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "字段配置管理"
+        ],
+        "summary": "删除字段配置",
+        "description": "删除指定的字段配置",
+        "operationId": "delFieldConfig",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "配置ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/field-configs/relation/batch": {
+      "put": {
+        "tags": [
+          "字段配置管理"
+        ],
+        "summary": "批量设置字段配置",
+        "description": "批量设置字段的配置（先删除旧的，再添加新的）",
+        "operationId": "setFieldConfigs",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "query",
+            "description": "字段ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "description": "配置ID列表",
+                "items": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -287,6 +643,119 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseWorkflow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows/{workflowId}/fields": {
+      "get": {
+        "tags": [
+          "工作流字段管理"
+        ],
+        "summary": "获取工作流字段列表",
+        "description": "获取指定工作流的所有字段",
+        "operationId": "listFields",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkflowFieldDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "工作流字段管理"
+        ],
+        "summary": "创建字段",
+        "description": "为指定工作流创建新字段",
+        "operationId": "createField",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkflowFieldRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowFieldDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows/{workflowId}/fields/generate": {
+      "post": {
+        "tags": [
+          "工作流字段管理"
+        ],
+        "summary": "从输入参数生成字段",
+        "description": "从工作流的inputParameters自动生成字段",
+        "operationId": "generateFields",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkflowFieldDto"
+                  }
                 }
               }
             }
@@ -558,6 +1027,84 @@
         }
       }
     },
+    "/api/throworder-workflows/{workflowId}/fields/generate": {
+      "post": {
+        "tags": [
+          "甩单工作流管理"
+        ],
+        "summary": "从输入参数生成字段",
+        "description": "从工作流的 Trigger 块输入参数自动生成字段",
+        "operationId": "generateFields_1",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkflowFieldDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/throworder-integration/{workflowId}/push": {
+      "post": {
+        "tags": [
+          "甩单集成"
+        ],
+        "summary": "推送到甩单系统",
+        "description": "将工作流推送到甩单系统，创建新的模板",
+        "operationId": "pushToThrowOrder",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushToThrowOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/throw-order": {
       "post": {
         "tags": [
@@ -622,6 +1169,38 @@
         }
       }
     },
+    "/api/throw-order/entry": {
+      "post": {
+        "tags": [
+          "Throw Order Trigger"
+        ],
+        "summary": "接收甩单（EntryOrder格式）",
+        "description": "兼容甩单系统 EntryOrderVo 格式的接口",
+        "operationId": "receiveEntryOrder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntryOrderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryOrderResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/throw-order/batch": {
       "post": {
         "tags": [
@@ -650,6 +1229,415 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseThrowOrderResponse[]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/testing/{engineId}/stop": {
+      "post": {
+        "tags": [
+          "Testing Mode"
+        ],
+        "summary": "停止测试执行",
+        "description": "停止正在执行的工作流测试",
+        "operationId": "stopExecution",
+        "parameters": [
+          {
+            "name": "engineId",
+            "in": "path",
+            "description": "引擎 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "执行已停止",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "引擎不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "停止执行失败",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/testing/{engineId}/step": {
+      "post": {
+        "tags": [
+          "Testing Mode"
+        ],
+        "summary": "单步执行",
+        "description": "执行下一个块后立即暂停，用于逐步调试工作流",
+        "operationId": "stepExecution",
+        "parameters": [
+          {
+            "name": "engineId",
+            "in": "path",
+            "description": "引擎 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "单步执行成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "引擎不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "单步执行失败",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/testing/{engineId}/start": {
+      "post": {
+        "tags": [
+          "Testing Mode"
+        ],
+        "summary": "开始测试执行",
+        "description": "开始执行工作流，可选择连续执行或单步执行模式",
+        "operationId": "startExecution",
+        "parameters": [
+          {
+            "name": "engineId",
+            "in": "path",
+            "description": "引擎 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stepByStep",
+            "in": "query",
+            "description": "是否单步执行",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "执行已开始",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "引擎不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "开始执行失败",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/testing/{engineId}/resume": {
+      "post": {
+        "tags": [
+          "Testing Mode"
+        ],
+        "summary": "恢复执行",
+        "description": "从断点处继续执行工作流，可选择连续执行或单步执行模式",
+        "operationId": "resumeExecution",
+        "parameters": [
+          {
+            "name": "engineId",
+            "in": "path",
+            "description": "引擎 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stepByStep",
+            "in": "query",
+            "description": "是否单步执行",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "执行已恢复",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "引擎不存在或不在断点状态",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "恢复执行失败",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/testing/{engineId}/breakpoint/{blockId}": {
+      "post": {
+        "tags": [
+          "Testing Mode"
+        ],
+        "summary": "设置断点",
+        "description": "在指定的块上设置断点，执行到此块时将自动暂停",
+        "operationId": "setBreakpoint",
+        "parameters": [
+          {
+            "name": "engineId",
+            "in": "path",
+            "description": "引擎 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "blockId",
+            "in": "path",
+            "description": "块 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "断点已设置",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "引擎或块不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "设置断点失败",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Testing Mode"
+        ],
+        "summary": "清除断点",
+        "description": "移除指定块上的断点",
+        "operationId": "clearBreakpoint",
+        "parameters": [
+          {
+            "name": "engineId",
+            "in": "path",
+            "description": "引擎 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "blockId",
+            "in": "path",
+            "description": "块 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "断点已清除",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "引擎或块不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "清除断点失败",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/testing/init/{workflowId}": {
+      "post": {
+        "tags": [
+          "Testing Mode"
+        ],
+        "summary": "初始化测试模式",
+        "description": "为指定工作流创建测试会话，返回引擎ID和初始状态快照",
+        "operationId": "initTestingMode",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "初始化成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "工作流不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "初始化失败",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
                 }
               }
             }
@@ -863,6 +1851,255 @@
         }
       }
     },
+    "/api/field-configs": {
+      "get": {
+        "tags": [
+          "字段配置管理"
+        ],
+        "summary": "获取所有字段配置",
+        "description": "获取所有字段配置列表",
+        "operationId": "listAll",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkflowFieldConfig"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "字段配置管理"
+        ],
+        "summary": "新增字段配置",
+        "description": "创建新的字段配置",
+        "operationId": "addFieldConfig",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowFieldConfig"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowFieldConfig"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/field-configs/relation": {
+      "post": {
+        "tags": [
+          "字段配置管理"
+        ],
+        "summary": "为字段添加配置关联",
+        "description": "将配置关联到指定字段",
+        "operationId": "addConfigToField",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "query",
+            "description": "字段ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "configId",
+            "in": "query",
+            "description": "配置ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "字段配置管理"
+        ],
+        "summary": "移除字段的配置关联",
+        "description": "移除字段与配置的关联关系",
+        "operationId": "removeConfigFromField",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "in": "query",
+            "description": "字段ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "configId",
+            "in": "query",
+            "description": "配置ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/workflows/{workflowId}/fields/{fieldId}/configs": {
+      "get": {
+        "tags": [
+          "工作流字段管理"
+        ],
+        "summary": "获取字段配置列表",
+        "description": "获取指定字段关联的配置列表",
+        "operationId": "getFieldConfigList",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fieldId",
+            "in": "path",
+            "description": "字段ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkflowFieldConfig"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows/{workflowId}/fields/count": {
+      "get": {
+        "tags": [
+          "工作流字段管理"
+        ],
+        "summary": "统计字段数量",
+        "description": "获取指定工作流的字段总数",
+        "operationId": "countFields",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workflows/{workflowId}/fields/config-by-code": {
+      "get": {
+        "tags": [
+          "工作流字段管理"
+        ],
+        "summary": "根据字段编码获取配置列表",
+        "description": "根据fieldCode获取字段关联的配置列表",
+        "operationId": "getFieldConfigListByCode",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fieldCode",
+            "in": "query",
+            "description": "字段编码",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkflowFieldConfig"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/workflows/{id}/status": {
       "get": {
         "tags": [
@@ -1038,6 +2275,240 @@
         }
       }
     },
+    "/api/throworder-workflows": {
+      "get": {
+        "tags": [
+          "甩单工作流管理"
+        ],
+        "summary": "获取甩单工作流列表",
+        "description": "获取所有触发类型为甩单的工作流列表，包含字段数量和同步状态",
+        "operationId": "listWorkflows",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ThrowOrderWorkflowDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/throworder-workflows/{workflowId}/fields": {
+      "get": {
+        "tags": [
+          "甩单工作流管理"
+        ],
+        "summary": "获取甩单工作流字段列表",
+        "description": "获取指定甩单工作流的所有字段",
+        "operationId": "getWorkflowFields",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkflowFieldDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/throworder-workflows/{workflowId}/detail": {
+      "get": {
+        "tags": [
+          "甩单工作流管理"
+        ],
+        "summary": "获取甩单工作流详情",
+        "description": "获取指定甩单工作流的详细信息，包含字段列表和同步状态",
+        "operationId": "getWorkflowDetail",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThrowOrderWorkflowDetailDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/throworder-workflows/stats": {
+      "get": {
+        "tags": [
+          "甩单工作流管理"
+        ],
+        "summary": "获取甩单工作流统计",
+        "description": "获取甩单工作流的统计信息",
+        "operationId": "getStats",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThrowOrderWorkflowStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/throworder-integration/{workflowId}/status": {
+      "get": {
+        "tags": [
+          "甩单集成"
+        ],
+        "summary": "获取同步状态",
+        "description": "获取工作流与甩单的同步状态",
+        "operationId": "getSyncStatus",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowThrowOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/testing/{engineId}/state": {
+      "get": {
+        "tags": [
+          "Testing Mode"
+        ],
+        "summary": "获取状态快照",
+        "description": "获取当前工作流执行的完整状态快照，包括执行进度、变量值等",
+        "operationId": "getState",
+        "parameters": [
+          {
+            "name": "engineId",
+            "in": "path",
+            "description": "引擎 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取状态快照",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseTestingStateSnapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "引擎不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseTestingStateSnapshot"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "获取状态失败",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseTestingStateSnapshot"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/testing/sessions": {
+      "get": {
+        "tags": [
+          "Testing Mode"
+        ],
+        "summary": "获取所有活跃测试会话",
+        "description": "获取当前所有活跃的测试会话列表及其状态信息",
+        "operationId": "getSessions",
+        "responses": {
+          "200": {
+            "description": "成功获取会话列表",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "获取会话列表失败",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/orders/{orderCode}": {
       "get": {
         "tags": [
@@ -1151,7 +2622,7 @@
         ],
         "summary": "获取调度器统计信息",
         "description": "获取当前调度器统计信息",
-        "operationId": "getStats",
+        "operationId": "getStats_1",
         "responses": {
           "200": {
             "description": "OK",
@@ -1248,6 +2719,42 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOrderResultResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/field-configs/type-info": {
+      "get": {
+        "tags": [
+          "字段配置管理"
+        ],
+        "summary": "获取字段类型的配置列表",
+        "description": "根据字段类型获取配置列表",
+        "operationId": "getTypeInfo",
+        "parameters": [
+          {
+            "name": "fieldType",
+            "in": "query",
+            "description": "字段类型(text/select/checkbox/radio/component等)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkflowFieldConfig"
+                  }
                 }
               }
             }
@@ -1354,10 +2861,293 @@
           }
         }
       }
+    },
+    "/api/throworder-integration/{workflowId}": {
+      "delete": {
+        "tags": [
+          "甩单集成"
+        ],
+        "summary": "从甩单删除",
+        "description": "从甩单系统中删除对应的模板",
+        "operationId": "deleteFromThrowOrder",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "工作流ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/testing/{engineId}": {
+      "delete": {
+        "tags": [
+          "Testing Mode"
+        ],
+        "summary": "销毁测试会话",
+        "description": "销毁指定的测试会话，释放相关资源",
+        "operationId": "destroySession",
+        "parameters": [
+          {
+            "name": "engineId",
+            "in": "path",
+            "description": "引擎 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "会话已销毁",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "引擎不存在",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "销毁会话失败",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "FieldConfigInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fieldType": {
+            "type": "string"
+          },
+          "fieldAttr": {
+            "type": "string"
+          },
+          "fieldKey": {
+            "type": "string"
+          },
+          "fieldConfigValue": {
+            "type": "string"
+          }
+        }
+      },
+      "FieldInfo": {
+        "type": "object",
+        "properties": {
+          "fieldCode": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fieldName": {
+            "type": "string"
+          },
+          "fieldType": {
+            "type": "string"
+          },
+          "dataType": {
+            "type": "string"
+          },
+          "fieldValue": {
+            "type": "string"
+          },
+          "defaultValue": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "placeholder": {
+            "type": "string"
+          },
+          "remarks": {
+            "type": "string"
+          },
+          "uniqueIdentification": {
+            "type": "string"
+          },
+          "classifyCode": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "configurationSort": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "secret": {
+            "type": "string"
+          },
+          "fieldKey": {
+            "type": "string"
+          },
+          "bindFieldCode": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateWorkflowFieldRequest": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "$ref": "#/components/schemas/FieldInfo"
+          },
+          "fieldConfigList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldConfigInfo"
+            }
+          }
+        }
+      },
+      "WorkflowFieldDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "fieldCode": {
+            "type": "string"
+          },
+          "fieldName": {
+            "type": "string"
+          },
+          "fieldType": {
+            "type": "string"
+          },
+          "dataType": {
+            "type": "string"
+          },
+          "fieldValue": {
+            "type": "string"
+          },
+          "defaultValue": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "placeholder": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "uniqueIdentification": {
+            "type": "string"
+          },
+          "classifyCode": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "configurationSort": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fieldKey": {
+            "type": "string"
+          },
+          "bindFieldCode": {
+            "type": "string"
+          },
+          "secret": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FieldSortItem": {
+        "type": "object",
+        "properties": {
+          "fieldId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fieldCode": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sort": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "FieldSortRequest": {
+        "required": [
+          "sortItems"
+        ],
+        "type": "object",
+        "properties": {
+          "sortItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldSortItem"
+            }
+          }
+        }
+      },
       "Dimensions": {
         "type": "object",
         "properties": {
@@ -1785,6 +3575,83 @@
           },
           "disabled": {
             "type": "boolean"
+          },
+          "published": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SyncResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "modelId": {
+            "type": "string"
+          },
+          "syncStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "syncTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fieldCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WorkflowFieldConfig": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fieldType": {
+            "type": "string"
+          },
+          "fieldAttr": {
+            "type": "string"
+          },
+          "fieldKey": {
+            "type": "string"
+          },
+          "fieldConfigValue": {
+            "type": "string"
+          },
+          "createBy": {
+            "type": "string"
+          },
+          "createIp": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updateBy": {
+            "type": "string"
+          },
+          "updateIp": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -1808,6 +3675,45 @@
           }
         },
         "description": "工作流创建请求"
+      },
+      "CreateWorkflowFieldRequest": {
+        "required": [
+          "fieldName"
+        ],
+        "type": "object",
+        "properties": {
+          "fieldName": {
+            "type": "string"
+          },
+          "fieldType": {
+            "type": "string"
+          },
+          "dataType": {
+            "type": "string"
+          },
+          "fieldValue": {
+            "type": "string"
+          },
+          "defaultValue": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "placeholder": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "secret": {
+            "type": "string"
+          }
+        }
       },
       "ApiResponseVoid": {
         "type": "object",
@@ -1925,6 +3831,21 @@
           "timeout": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "PushToThrowOrderRequest": {
+        "type": "object",
+        "properties": {
+          "modelName": {
+            "type": "string"
+          },
+          "rpaType": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "autoGenerateFields": {
+            "type": "boolean"
           }
         }
       },
@@ -2073,6 +3994,132 @@
           }
         }
       },
+      "EntryOrderFieldVo": {
+        "type": "object",
+        "properties": {
+          "fieldCode": {
+            "type": "string",
+            "description": "字段编码"
+          },
+          "fieldName": {
+            "type": "string",
+            "description": "字段名称"
+          },
+          "fieldValue": {
+            "type": "string",
+            "description": "字段值"
+          },
+          "fieldType": {
+            "type": "string",
+            "description": "字段类型"
+          }
+        },
+        "description": "录入订单字段"
+      },
+      "EntryOrderRequest": {
+        "required": [
+          "orderCode"
+        ],
+        "type": "object",
+        "properties": {
+          "modelId": {
+            "type": "string",
+            "description": "模板ID/工作流ID"
+          },
+          "orderCode": {
+            "type": "string",
+            "description": "订单code"
+          },
+          "auditCodes": {
+            "type": "string",
+            "description": "审核编码"
+          },
+          "businessName": {
+            "type": "string",
+            "description": "业务名称"
+          },
+          "isBatch": {
+            "type": "integer",
+            "description": "是否批量单",
+            "format": "int32"
+          },
+          "batch": {
+            "type": "string",
+            "description": "批次号"
+          },
+          "rpaType": {
+            "type": "string",
+            "description": "RPA类型"
+          },
+          "rpaParam": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "RPA参数"
+            },
+            "description": "RPA参数"
+          },
+          "filePathList": {
+            "type": "array",
+            "description": "附件列表",
+            "items": {
+              "type": "string",
+              "description": "附件列表"
+            }
+          },
+          "ifMandatoryReceipt": {
+            "type": "integer",
+            "description": "是否强制回执",
+            "format": "int32"
+          },
+          "turnAutoOrderId": {
+            "type": "string",
+            "description": "转自动工单ID"
+          },
+          "callbackUrl": {
+            "type": "string",
+            "description": "回调地址"
+          },
+          "callbackToken": {
+            "type": "string",
+            "description": "回调Token"
+          },
+          "filedList": {
+            "type": "array",
+            "description": "字段列表",
+            "items": {
+              "$ref": "#/components/schemas/EntryOrderFieldVo"
+            }
+          }
+        },
+        "description": "录入订单请求（兼容甩单系统格式）"
+      },
+      "EntryOrderResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "orderCode": {
+            "type": "string"
+          },
+          "sourceOrderCode": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "errorCode": {
+            "type": "string"
+          },
+          "errorMessage": {
+            "type": "string"
+          }
+        }
+      },
       "ApiResponseThrowOrderResponse[]": {
         "type": "object",
         "properties": {
@@ -2086,6 +4133,23 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ThrowOrderResponse"
+            }
+          }
+        }
+      },
+      "ApiResponseMapStringObject": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
             }
           }
         }
@@ -2147,8 +4211,9 @@
             "description": "Order code"
           },
           "workflowId": {
-            "type": "string",
-            "description": "Workflow ID"
+            "type": "integer",
+            "description": "Workflow ID",
+            "format": "int64"
           },
           "status": {
             "type": "integer",
@@ -2298,6 +4363,9 @@
           },
           "enabled": {
             "type": "boolean"
+          },
+          "published": {
+            "type": "boolean"
           }
         }
       },
@@ -2322,7 +4390,8 @@
             "type": "string"
           },
           "workflowId": {
-            "type": "string"
+            "type": "integer",
+            "format": "int64"
           },
           "state": {
             "type": "string",
@@ -2521,6 +4590,258 @@
           "total": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "ThrowOrderWorkflowDto": {
+        "type": "object",
+        "properties": {
+          "workflowId": {
+            "type": "string"
+          },
+          "workflowName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "fieldCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "syncStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "syncStatusText": {
+            "type": "string"
+          },
+          "modelId": {
+            "type": "string"
+          },
+          "lastSyncAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "syncMessage": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ThrowOrderWorkflowDetailDto": {
+        "type": "object",
+        "properties": {
+          "workflowId": {
+            "type": "string"
+          },
+          "workflowName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowFieldDto"
+            }
+          },
+          "fieldCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "syncStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "syncStatusText": {
+            "type": "string"
+          },
+          "modelId": {
+            "type": "string"
+          },
+          "modelName": {
+            "type": "string"
+          },
+          "lastSyncAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "syncMessage": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ThrowOrderWorkflowStats": {
+        "type": "object",
+        "properties": {
+          "totalCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "syncedCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pendingCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "failedCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "notSyncedCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "WorkflowThrowOrder": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "modelId": {
+            "type": "string"
+          },
+          "modelName": {
+            "type": "string"
+          },
+          "syncStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lastSyncAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "syncMessage": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseTestingStateSnapshot": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TestingStateSnapshot"
+          }
+        }
+      },
+      "TestingStateSnapshot": {
+        "type": "object",
+        "properties": {
+          "workflowId": {
+            "type": "string"
+          },
+          "engineId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "IDLE",
+              "RUNNING",
+              "BREAKPOINT",
+              "COMPLETED",
+              "ERROR",
+              "STOPPED"
+            ]
+          },
+          "currentBlockId": {
+            "type": "string"
+          },
+          "currentBlockLabel": {
+            "type": "string"
+          },
+          "currentBlockName": {
+            "type": "string"
+          },
+          "currentBlock": {
+            "$ref": "#/components/schemas/Node"
+          },
+          "variables": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "table": {
+            "type": "object"
+          },
+          "globalData": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "loopData": {
+            "type": "object"
+          },
+          "executedBlockCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errorCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "startedAt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pausedAt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "message": {
+            "type": "string"
           }
         }
       },

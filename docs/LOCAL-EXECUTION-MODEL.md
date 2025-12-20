@@ -243,7 +243,7 @@ src/
 
 ```env
 # 本地调试服务地址
-VITE_LOCAL_SERVICE_URL=http://localhost:8583
+VITE_LOCAL_SERVICE_URL=http://localhost:8583/api/
 
 # API 基础地址（用于正式环境）
 VITE_API_BASE_URL=https://api.example.com

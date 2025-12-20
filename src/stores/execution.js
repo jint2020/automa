@@ -145,29 +145,40 @@ export const useExecutionStore = defineStore('execution', {
       this.addLog('info', `开始执行工作流: ${workflowData.name}`);
 
       try {
-        const result = await localExecutionService.executeWorkflow(
+        const response = await localExecutionService.executeWorkflow(
           workflowData,
           options
         );
 
+        // axios 响应数据在 response.data 中
+        // API 响应格式：{ success: boolean, message: string, data: ExecutionResponse }
+        if (!response.data.success) {
+          throw new Error(response.data.message || '执行失败');
+        }
+
+        const executionData = response.data.data;
+
         this.currentExecution = {
-          executionId: result.executionId,
-          workflowId: workflowData.id,
+          executionId: executionData.executionId,
+          workflowId: executionData.workflowId || workflowData.id,
           workflowName: workflowData.name,
           startTime: new Date(),
-          status: result.status,
+          status: executionData.status,
         };
 
         this.executionStatus = ExecutionStatus.RUNNING;
-        this.addLog('info', `执行ID: ${result.executionId}`);
+        this.addLog('info', `执行ID: ${executionData.executionId}`);
+        if (executionData.message) {
+          this.addLog('info', executionData.message);
+        }
 
-        // 开始轮询状态
-        this.startStatusPolling(result.executionId);
+        // 开始轮询状态（使用 workflowId）
+        this.startStatusPolling(executionData.executionId);
 
-        // 订阅执行日志
-        this.subscribeToLogs(result.executionId);
+        // 订阅执行日志（使用 workflowId）
+        this.subscribeToLogs(workflowData.id);
 
-        return result;
+        return executionData;
       } catch (error) {
         this.executionStatus = ExecutionStatus.FAILED;
         this.addLog('error', `执行失败: ${error.message}`);
@@ -197,7 +208,8 @@ export const useExecutionStore = defineStore('execution', {
       this.addLog('info', '正在停止执行...');
 
       try {
-        const result = await localExecutionService.stopExecution(
+        // 使用 workflowId 停止执行
+        const response = await localExecutionService.stopExecution(
           this.currentExecution.executionId
         );
 
@@ -217,7 +229,7 @@ export const useExecutionStore = defineStore('execution', {
 
         this.currentExecution = null;
 
-        return result;
+        return response.data;
       } catch (error) {
         this.addLog('error', `停止执行失败: ${error.message}`);
         throw error;
@@ -226,34 +238,53 @@ export const useExecutionStore = defineStore('execution', {
 
     /**
      * 开始轮询执行状态
+     * @param {string} executionId - 工作流ID
+     * @param {number} interval - 轮询间隔（毫秒）
      */
     startStatusPolling(executionId, interval = 2000) {
       this.stopStatusPolling();
 
       this.statusPollingInterval = setInterval(async () => {
         try {
-          const status = await localExecutionService.getExecutionStatus(
+          const response = await localExecutionService.getExecutionStatus(
             executionId
           );
 
+          // axios 响应数据在 response.data 中
+          const statusData = response.data;
+
           // 更新当前执行状态
           if (this.currentExecution) {
-            this.currentExecution.status = status.status;
-            this.currentExecution.currentBlock = status.currentBlock;
-            this.currentExecution.progress = status.progress;
+            this.currentExecution.status = statusData.status;
+            this.currentExecution.currentBlock = statusData.currentBlock;
+            this.currentExecution.progress = statusData.progress;
           }
 
           // 检查是否完成
           if (
-            status.status === 'completed' ||
-            status.status === 'failed' ||
-            status.status === 'stopped'
+            statusData.status === 'completed' ||
+            statusData.status === 'failed' ||
+            statusData.status === 'stopped'
           ) {
-            this.onExecutionComplete(status);
+            this.onExecutionComplete(statusData);
           }
         } catch (error) {
-          // 网络错误时不要停止轮询
-          console.error('获取执行状态失败:', error);
+          // status 接口返回错误，直接停止执行
+          console.error('获取执行状态失败，停止执行:', error);
+          this.addLog('error', `状态查询失败: ${error.message}`);
+
+          // 尝试调用 stop API
+          try {
+            await localExecutionService.stopExecution(executionId);
+          } catch (stopError) {
+            console.error('调用停止接口失败:', stopError);
+          }
+
+          // 标记为失败并完成执行
+          this.onExecutionComplete({
+            status: 'failed',
+            error: error.message || '状态查询失败',
+          });
         }
       }, interval);
     },
@@ -270,12 +301,13 @@ export const useExecutionStore = defineStore('execution', {
 
     /**
      * 订阅执行日志（SSE）
+     * @param {string} workflowId - 工作流ID
      */
-    subscribeToLogs(executionId) {
+    subscribeToLogs(workflowId) {
       this.unsubscribeFromLogs();
 
       this.logsEventSource = localExecutionService.subscribeToExecutionLogs(
-        executionId,
+        workflowId,
         (data) => {
           if (data.level && data.message) {
             this.addLog(data.level, data.message, data.timestamp);
@@ -310,13 +342,19 @@ export const useExecutionStore = defineStore('execution', {
         status.status === 'completed'
           ? ExecutionStatus.COMPLETED
           : status.status === 'failed'
-            ? ExecutionStatus.FAILED
-            : ExecutionStatus.STOPPED;
+          ? ExecutionStatus.FAILED
+          : ExecutionStatus.STOPPED;
 
       this.executionStatus = finalStatus;
       this.addLog(
         finalStatus === ExecutionStatus.COMPLETED ? 'info' : 'error',
-        `执行${finalStatus === ExecutionStatus.COMPLETED ? '完成' : finalStatus === ExecutionStatus.FAILED ? '失败' : '已停止'}`
+        `执行${
+          finalStatus === ExecutionStatus.COMPLETED
+            ? '完成'
+            : finalStatus === ExecutionStatus.FAILED
+            ? '失败'
+            : '已停止'
+        }`
       );
 
       // 添加到历史记录
