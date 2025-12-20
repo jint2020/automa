@@ -67,6 +67,13 @@
     </template>
     <template #footer-content>
       <v-remixicon
+        v-if="workflow.published"
+        v-tooltip:bottom.group="'已发布'"
+        name="riUploadCloudLine"
+        size="20"
+        class="ml-2 text-green-500"
+      />
+      <v-remixicon
         v-if="isShared"
         v-tooltip:bottom.group="
           t('workflow.share.sharedAs', {
