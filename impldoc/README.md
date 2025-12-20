@@ -12,7 +12,7 @@
 
 - **[完整开发指南](./guides/custom-block-development.md)** - 详细的开发教程，包含架构说明、开发流程、数据交互详解和完整示例
 - **[快速参考手册](./guides/quick-reference.md)** - 快速查找常用的 API、模式和代码片段
-- **[CRM 客户查询实现指南](./guides/crm-get-customer-implementation.md)** - crm-get-customer Block 的完整实现记录，包含变量自动补全支持
+- **[CRM 客户查询实现指南](./guides/telecom-query-customer-implementation.md)** - telecom-query-customer Block 的完整实现记录，包含变量自动补全支持
 
 **适合人群**：开发自定义 Block 的开发者
 
@@ -153,7 +153,7 @@ pnpm dev:web
 ## 文档更新日志
 
 ### 2025-12-09
-- 📝 新增 [CRM 客户查询实现指南](./guides/crm-get-customer-implementation.md)
+- 📝 新增 [CRM 客户查询实现指南](./guides/telecom-query-customer-implementation.md)
 - 🔧 记录变量自动补全功能的实现细节
 - 🐛 修复新节点自动补全数据不更新的问题
 

@@ -101,7 +101,7 @@ business/dev/blocks/
 export default function () {
   return {
     // Block ID（kebab-case，必须唯一）
-    'crm-get-customer': {
+    'telecom-query-customer': {
       // 基本信息
       name: 'CRM - 查询客户',                    // Block 显示名称
       description: '从企业CRM系统查询客户信息',  // Block 描述
@@ -122,7 +122,7 @@ export default function () {
       data: {
         disableBlock: false,                     // 是否禁用
         description: '',                         // Block 描述（用户可编辑）
-        queryType: 'accessNumber',               // 自定义字段：查询类型
+        searchType: 'accessNumber',               // 自定义字段：查询类型
         queryParams: 'accessNumber:orient',      // 自定义字段：查询参数
         dataColumn: 'customerInfo',              // 保存到表格列
         assignVariable: true,                    // 是否赋值给变量
@@ -288,17 +288,17 @@ return {
 
 ```vue
 <template>
-  <div class="edit-crm-get-customer">
+  <div class="edit-telecom-query-customer">
     <!-- 查询条件配置 -->
     <ui-card class="mb-4">
       <p class="font-semibold mb-2">查询条件</p>
 
       <ui-select
-        :model-value="data.queryType"
+        :model-value="data.searchType"
         label="查询类型"
         placeholder="请选择查询类型"
         class="mb-2"
-        @change="updateData({ queryType: $event })"
+        @change="updateData({ searchType: $event })"
       >
         <option v-for="item in qType" :key="item.value" :value="item.value">
           {{ item.label }}
@@ -440,10 +440,10 @@ export default function () {
                     传递 prevBlockData
                               ↓
 ┌──────────────────────────────────────────────────────────────────┐
-│                 Block B (crm-get-customer)                        │
+│                 Block B (telecom-query-customer)                        │
 │                                                                   │
 │  1. 读取 block.data（用户配置）                                   │
-│     - queryType: 'accessNumber'                                  │
+│     - searchType: 'accessNumber'                                  │
 │     - variableName: 'customerData'                               │
 │                                                                   │
 │  2. 处理业务逻辑                                                  │
@@ -588,7 +588,7 @@ Handler 中的字符串会自动解析这些模板（通过 `renderString` 函�
 ```javascript
 export default function () {
   return {
-    'crm-get-customer': {
+    'telecom-query-customer': {
       name: 'CRM - 查询客户',
       description: '从企业CRM系统查询客户信息',
       icon: 'riAccountCircleLine',
@@ -602,7 +602,7 @@ export default function () {
       data: {
         disableBlock: false,
         description: '',
-        queryType: 'accessNumber',        // 查询类型
+        searchType: 'accessNumber',        // 查询类型
         queryParams: 'accessNumber:orient', // 查询参数映射
         dataColumn: 'customerInfo',        // 保存到表格列
         assignVariable: true,              // 是否赋值给变量
@@ -624,7 +624,7 @@ export default function () {
       try {
         // 1. 获取用户配置
         const {
-          queryType,       // 查询类型
+          searchType,       // 查询类型
           queryParams,     // 查询参数映射
           dataColumn,      // 保存到表格列
           assignVariable,  // 是否赋值给变量
@@ -633,7 +633,7 @@ export default function () {
 
         // 2. 构建查询配置（实际场景中这里会调用 API）
         const queryConfig = {
-          queryType,
+          searchType,
           queryParams,
           timestamp: new Date().toISOString(),
         };
@@ -645,7 +645,7 @@ export default function () {
           phone: '13800138000',
           email: 'zhangsan@example.com',
           address: '北京市朝阳区',
-          queryType,
+          searchType,
           queryParams,
         };
 
@@ -678,17 +678,17 @@ export default function () {
 
 ```vue
 <template>
-  <div class="edit-crm-get-customer">
+  <div class="edit-telecom-query-customer">
     <!-- 查询条件配置 -->
     <ui-card class="mb-4">
       <p class="font-semibold mb-2">查询条件</p>
 
       <ui-select
-        :model-value="data.queryType"
+        :model-value="data.searchType"
         label="查询类型"
         placeholder="请选择查询类型"
         class="mb-2"
-        @change="updateData({ queryType: $event })"
+        @change="updateData({ searchType: $event })"
       >
         <option v-for="item in qType" :key="item.value" :value="item.value">
           {{ item.label }}
@@ -813,7 +813,7 @@ export default function () {
 async crmGetCustomer({ data, id }) {
   try {
     // 业务逻辑
-    const result = await fetchCustomerData(data.queryType);
+    const result = await fetchCustomerData(data.searchType);
 
     return {
       data: result,
@@ -831,7 +831,7 @@ async crmGetCustomer({ data, id }) {
 ```javascript
 async crmGetCustomer({ data, id }) {
   // 验证必需参数
-  if (!data.queryType) {
+  if (!data.searchType) {
     throw new Error('查询类型不能为空');
   }
 
@@ -883,9 +883,9 @@ Handler 中可以使用模板语法引用变量：
 import renderString from '@/workflowEngine/templating/renderString';
 
 async myBlock({ data, id }) {
-  // data.queryValue 可能是 "{{variables.userId}}"
+  // data.searchValue 可能是 "{{variables.userId}}"
   const actualValue = await renderString(
-    data.queryValue,
+    data.searchValue,
     this.engine.referenceData,
     this
   );
@@ -927,7 +927,7 @@ async myBlock({ data, id }) {
 ```javascript
 async myBlock({ data, id }) {
   console.log('[CRM Block] 开始查询', {
-    queryType: data.queryType,
+    searchType: data.searchType,
     blockId: id
   });
 

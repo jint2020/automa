@@ -1,6 +1,6 @@
 # CRM 客户查询 Block 实现指南
 
-本文档记录 `crm-get-customer` Block 的完整实现过程，包括配置页面设计、变量自动补全支持等关键功能。
+本文档记录 `telecom-query-customer` Block 的完整实现过程，包括配置页面设计、变量自动补全支持等关键功能。
 
 ---
 
@@ -19,7 +19,7 @@
 
 ## 功能概述
 
-`crm-get-customer` Block 用于从企业 CRM 系统查询客户信息。
+`telecom-query-customer` Block 用于从企业 CRM 系统查询客户信息。
 
 ### 核心功能
 
@@ -69,7 +69,7 @@ business/dev/blocks/
 ```javascript
 export default function () {
   return {
-    'crm-get-customer': {
+    'telecom-query-customer': {
       name: 'CRM - 查询客户',
       description: '从企业CRM系统查询客户信息',
       icon: 'riAccountCircleLine',
@@ -87,8 +87,8 @@ export default function () {
       data: {
         disableBlock: false,
         description: '',
-        queryType: 'accessNumber',    // 查询类型
-        queryValue: '',               // 查询值（支持模板语法）
+        searchType: 'accessNumber',    // 查询类型
+        searchValue: '',               // 查询值（支持模板语法）
         assignVariable: true,         // 是否保存到变量
         variableName: '',             // 变量名
       },
@@ -102,7 +102,7 @@ export default function () {
 | 字段 | 说明 |
 |------|------|
 | `autocomplete: ['variableName']` | **必需**，启用变量名自动补全，让配置的变量名出现在提示列表中 |
-| `queryValue` | 查询值输入框，支持 `{{ variable }}` 模板语法 |
+| `searchValue` | 查询值输入框，支持 `{{ variable }}` 模板语法 |
 | `assignVariable` | 布尔值，控制是否显示变量名输入框 |
 | `variableName` | 变量名，其他 Block 可通过 `{{variables.xxx}}` 引用 |
 
@@ -114,17 +114,17 @@ export default function () {
 
 ```vue
 <template>
-  <div class="edit-crm-get-customer">
+  <div class="edit-telecom-query-customer">
     <!-- 查询条件配置 -->
     <ui-card class="mb-4">
       <p class="font-semibold mb-2">查询条件</p>
 
       <ui-select
-        :model-value="data.queryType"
+        :model-value="data.searchType"
         label="查询类型"
         placeholder="请选择查询类型"
         class="mb-2"
-        @change="updateData({ queryType: $event })"
+        @change="updateData({ searchType: $event })"
       >
         <option v-for="item in qType" :key="item.value" :value="item.value">
           {{ item.label }}
@@ -132,10 +132,10 @@ export default function () {
       </ui-select>
 
       <ui-input
-        :model-value="data.queryValue"
+        :model-value="data.searchValue"
         label="查询值"
         placeholder="输入查询值，支持 {{ variable }}"
-        @change="updateData({ queryValue: $event })"
+        @change="updateData({ searchValue: $event })"
       />
     </ui-card>
 
@@ -219,7 +219,7 @@ Automa 的变量自动补全依赖两个机制：
 ```javascript
 // business/dev/blocks/index.js
 {
-  'crm-get-customer': {
+  'telecom-query-customer': {
     // ... 其他配置
     autocomplete: ['variableName'],  // 收集 variableName 字段的值
     data: {
@@ -292,17 +292,17 @@ export default function () {
     async crmGetCustomer({ data, id }) {
       try {
         const {
-          queryType,
-          queryValue,
+          searchType,
+          searchValue,
           assignVariable,
           variableName,
         } = data;
 
         // 1. 解析查询值（支持模板语法）
-        // queryValue 会被 Automa 自动解析，如 "{{variables.phone}}" -> "13800138000"
+        // searchValue 会被 Automa 自动解析，如 "{{variables.phone}}" -> "13800138000"
 
         // 2. 执行查询逻辑（实际场景中调用 CRM API）
-        const customerData = await this.fetchCustomer(queryType, queryValue);
+        const customerData = await this.fetchCustomer(searchType, searchValue);
 
         // 3. 保存到变量
         if (assignVariable && variableName) {
@@ -359,7 +359,7 @@ export default function () {
 ```javascript
 // 确保 Block 定义包含 autocomplete
 {
-  'crm-get-customer': {
+  'telecom-query-customer': {
     autocomplete: ['variableName'],  // 必需
     // ...
   },

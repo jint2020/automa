@@ -591,7 +591,7 @@ async myBlock({ data, id }) {
 
 | 项目 | 约定 | 示例 |
 |------|------|------|
-| Block ID | kebab-case | `crm-get-customer` |
+| Block ID | kebab-case | `telecom-query-customer` |
 | Handler 文件名 | handler + PascalCase | `handlerCRMGetCustomer.js` |
 | Handler 函数名 | camelCase | `crmGetCustomer` |
 | EditComponent 文件名 | Edit + PascalCase | `EditCRMGetCustomer.vue` |

@@ -5,7 +5,7 @@ export default function () {
       try {
         // 获取用户配置的查询类型和查询参数
         const {
-          queryType,
+          searchType,
           queryParams,
           dataColumn,
           assignVariable,
@@ -14,7 +14,7 @@ export default function () {
 
         // 构建查询配置数据（这些数据已经保存在 workflow 节点中）
         const queryConfig = {
-          queryType,
+          searchType,
           queryParams,
           timestamp: new Date().toISOString(),
         };

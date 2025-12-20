@@ -3,12 +3,12 @@
  * @Author: Jin Tang
  * @Date: 2025-12-10 17:53:44
  * @LastEditors: Jin Tang
- * @LastEditTime: 2025-12-10 17:56:44
+ * @LastEditTime: 2025-12-20 17:38:20
  */
 
 export default {
   // CRM客户查询块
-  'crm-get-customer': {
+  'telecom-query-customer': {
     name: 'CRM - 查询客户',
     description: '从企业CRM系统查询客户信息',
     icon: 'riAccountCircleLine',
@@ -19,12 +19,12 @@ export default {
     outputs: 1,
     maxConnection: 1,
     allowedInputs: true,
-    autocomplete: ['variableName', 'queryValue'],
+    autocomplete: ['variableName', 'searchValue'],
     data: {
       disableBlock: false,
       description: '',
-      queryType: 'accessNumber',
-      queryValue: '',
+      searchType: 'accessNumber',
+      searchValue: '',
       assignVariable: true,
       variableName: '',
     },

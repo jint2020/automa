@@ -1,15 +1,15 @@
 <template>
-  <div class="edit-crm-get-customer">
+  <div class="edit-telecom-query-customer">
     <!-- 查询条件配置 -->
     <ui-card class="mb-4">
       <p class="font-semibold mb-2">查询条件</p>
 
       <ui-select
-        :model-value="data.queryType"
+        :model-value="data.searchType"
         label="查询类型"
         placeholder="请选择查询类型"
         class="mb-2 w-full"
-        @change="updateData({ queryType: $event })"
+        @change="updateData({ searchType: $event })"
       >
         <option v-for="item in qType" :key="item.value" :value="item.value">
           {{ item.label }}
@@ -18,10 +18,10 @@
 
       <edit-autocomplete class="mb-1 w-full">
         <ui-input
-          :model-value="data.queryValue"
+          :model-value="data.searchValue"
           label="查询值"
           placeholder="输入查询值，支持 {{ variable }}"
-          @change="updateData({ queryValue: $event })"
+          @change="updateData({ searchValue: $event })"
         />
       </edit-autocomplete>
     </ui-card>
