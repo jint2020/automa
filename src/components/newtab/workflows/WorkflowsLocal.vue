@@ -405,19 +405,10 @@ async function publishWorkflowId(workflow) {
       throw new Error(response.data.message || '发布失败');
     }
 
-    const result = response.data;
-
     toast.success('工作流发布成功！');
 
-    // 更新本地工作流的发布状态
-    workflowStore.update({
-      id: workflow.id,
-      data: {
-        isPublished: true,
-        publishedAt: Date.now(),
-        publishUrl: result.data?.publishUrl || result.data?.url,
-      },
-    });
+    // 重新获取所有工作流以同步后端数据
+    await workflowStore.loadData();
   } catch (error) {
     console.error('发布工作流失败:', error);
     toast.error(error.message || '发布失败，请重试');
